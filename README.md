@@ -1,6 +1,6 @@
 # 🛡️ Context Guardian
 
-Skill para Claude.ai que monitora e protege o contexto em conversas longas — detectando degradação, compilando um relatório `.md` completo e gerando um **Prompt de Retomada** para continuidade sem perda de informação.
+Skill para Claude.ai que monitora e protege o contexto em conversas longas — detectando degradação, compilando um relatório `.md` completo e gerando Prompts de Retomada para continuidade sem perda de informação.
 
 ---
 
@@ -10,18 +10,21 @@ Conversas longas no Claude degradam silenciosamente. O modelo começa a esquecer
 
 ## A solução
 
-O Context Guardian opera em dois modos complementares:
+O Context Guardian opera em três modos e seis mecanismos de proteção:
 
 ```
-🛡️ MODO SENTINELA              ⚠️ MODO EVACUAÇÃO
-──────────────────              ─────────────────────
-Ativo desde o início            Disparo automático ou manual
-Registra fatos-âncora           Varre toda a conversa
-Checkpoint a cada 20 turnos     Gera relatório .md completo
-Evacua ao detectar degradação   Gera Prompt de Retomada pronto
+🛡️ MODO SENTINELA    — monitoramento ativo desde o início
+🔇 MODO SILENCIOSO   — checkpoints sem interrupção no chat
+⚠️ MODO EVACUAÇÃO    — relatório .md + Prompts de Retomada ao detectar degradação
 ```
 
-O **Modo Sentinela** resolve o paradoxo central: uma skill só é consultada se Claude reconhece que precisa dela — mas com contexto degradado, Claude pode não reconhecer os próprios sinais. O Sentinela ativa o monitoramento quando Claude ainda tem contexto pleno, antes de qualquer degradação.
+**Seis mecanismos integrados:**
+1. Checkpoint por virada de fase (não só por turnos)
+2. Detecção semântica de degradação gradual
+3. Prompt de Retomada em dois formatos (completo e compacto)
+4. Perfis de conversa especializados (Técnico, Estratégico, Criativo, Geral)
+5. Modo silencioso sem ruído no fluxo de trabalho
+6. Integração com a memória do Claude para preferências recorrentes
 
 ---
 
@@ -39,9 +42,15 @@ O **Modo Sentinela** resolve o paradoxo central: uma skill só é consultada se 
 ### Modo Sentinela (usar no início da conversa)
 
 ```
-ativar context guardian    context guardian on    /cg
-ativar sentinela           iniciar monitoramento   cg on
+ativar context guardian    context guardian on    /cg    cg on
+ativar sentinela           iniciar monitoramento
 monitorar contexto         proteção de contexto
+```
+
+### Modo Silencioso
+
+```
+modo silencioso    sentinela silencioso    cg silent
 ```
 
 ### Modo Evacuação (manual ou automático)
@@ -52,21 +61,23 @@ nova conversa      transferir conversa   checkpoint agora
 o que discutimos   contexto perdido      você esqueceu
 ```
 
-O Modo Evacuação também dispara automaticamente quando Claude detecta que está incerto sobre algo já estabelecido, quando repete conteúdo já coberto ou quando a conversa ultrapassa 50 turnos sem checkpoint.
+O Modo Evacuação dispara automaticamente quando Claude detecta degradação — incerteza sobre fatos estabelecidos, repetição de conteúdo, contradição de decisões, sinais semânticos graduais — ou quando a conversa ultrapassa 50 turnos sem checkpoint.
 
 ---
 
 ## O que a evacuação gera
 
-**1. Arquivo `.md`** — relatório completo para download com stack técnica, decisões cronológicas, código produzido, tentativas fracassadas e estado exato no momento da evacuação.
+**Arquivo `.md`** com relatório adaptado ao perfil da conversa (Técnico, Estratégico, Criativo ou Geral), cobrindo decisões cronológicas, código produzido, tentativas fracassadas e estado exato no momento da evacuação.
 
-**2. Prompt de Retomada** — bloco pronto para colar na nova conversa com o ponto exato de parada e a primeira ação imperativa para o novo agente. Funciona com ou sem o arquivo `.md`.
+**Prompt Completo** — todas as seções, para conversas técnicas e longas.
+
+**Prompt Compacto** — ~150 palavras, para retomadas rápidas.
+
+**Memória do Claude** — preferências recorrentes (stack, estilo de código, idioma, formato de resposta) salvas automaticamente para futuras conversas.
 
 ---
 
 ## Automação total (fora do Claude.ai)
-
-No Claude.ai o último passo é sempre manual (3 cliques). Em outros ambientes a transferência é completamente automática:
 
 | Ambiente | Automação |
 |---|---|

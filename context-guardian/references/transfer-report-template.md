@@ -1,100 +1,73 @@
-# Template: Relatório de Transferência de Contexto (.md)
+# Templates de Relatório de Transferência — por Perfil
 
-> Este arquivo é o template que Claude deve usar ao gerar o relatório de evacuação.
-> Preencher TODAS as seções aplicáveis. Remover apenas seções genuinamente vazias.
-> O arquivo gerado deve ser rico, denso e completamente auto-suficiente.
+Escolha o template correspondente ao perfil detectado na evacuação.
+Perfis: Técnico · Estratégico · Criativo · Geral
 
 ---
+
+## TEMPLATE TÉCNICO / CÓDIGO
 
 ```markdown
 # 📋 RELATÓRIO DE TRANSFERÊNCIA — [NOME DO PROJETO]
-
-> **Gerado pelo Context Guardian**  
-> Turno da conversa: [N]  
-> Motivo: [degradação detectada / conversa longa / pedido do usuário]  
-> Instrução de uso: Cole este arquivo como anexo na primeira mensagem de uma nova conversa,
-> ou copie o conteúdo e cole diretamente. O novo agente terá contexto completo.
+**Context Guardian v1.1** | Turno: [N] | Perfil: Técnico
+Motivo: [degradação / conversa longa / pedido do usuário]
 
 ---
 
-## 🔴 LEIA PRIMEIRO — Itens Críticos
+## 🔴 LEIA PRIMEIRO
 
-> Um novo Claude DEVE saber isso antes de qualquer coisa.
-
-- 🔴 [fato/decisão/restrição crítica 1]
-- 🔴 [fato/decisão/restrição crítica 2]
-- 🔴 [fato/decisão/restrição crítica 3]
-*(adicione quantos forem necessários — não limite)*
+- 🔴 [fato/decisão crítica 1]
+- 🔴 [fato/decisão crítica 2]
 
 ---
 
-## 🎯 Identidade do Projeto
+## 🎯 IDENTIDADE
 
-| Campo                  | Valor                                      |
-|------------------------|--------------------------------------------|
-| **Nome do projeto**    | [nome exato como o usuário usa]            |
-| **Objetivo principal** | [em uma ou duas frases exatas]             |
-| **Fase atual**         | [ex: implementação do módulo de auth]      |
-| **Usuário / papel**    | [ex: desenvolvedor solo, CTO de startup]   |
-| **Domínio**            | [ex: fintech B2B, app mobile, API interna] |
-| **Contexto temporal**  | [prazo, sprint, marco se mencionado]       |
+| Campo | Valor |
+|-------|-------|
+| **Projeto** | [nome exato] |
+| **Objetivo** | [1-2 frases precisas] |
+| **Fase atual** | [ex: implementação do módulo de auth] |
+| **Usuário** | [papel/contexto, ex: dev solo, fintech B2B] |
 
 ---
 
-## ⚙️ Stack Técnica
+## ⚙️ STACK TÉCNICA
 
-### Linguagens e Runtimes
-| Item          | Versão / Detalhes                |
-|---------------|----------------------------------|
-| [linguagem]   | [versão exata se mencionada]     |
-| [runtime]     | [versão exata se mencionada]     |
+| Item | Versão / Detalhe |
+|------|-----------------|
+| Linguagem | [ex: Python 3.11] |
+| Framework | [ex: FastAPI 0.110] |
+| Banco | [ex: PostgreSQL 15, local] |
+| Infra | [ex: Docker, sem CI ainda] |
+| OS/Plataforma | [ex: Linux Ubuntu 22.04] |
 
-### Frameworks e Bibliotecas
-| Biblioteca / Framework | Versão  | Finalidade               |
-|------------------------|---------|--------------------------|
-| [nome]                 | [v]     | [para que serve no projeto] |
-
-### Infraestrutura
-| Componente     | Detalhe                          |
-|----------------|----------------------------------|
-| **Banco**      | [ex: PostgreSQL 15, local]       |
-| **Deploy**     | [ex: Railway, sem CI ainda]      |
-| **Ambiente**   | [ex: dev local, Docker]          |
-| **OS / Plat.** | [ex: macOS, Linux]               |
-
-### Variáveis de Ambiente e Configurações
+### Variáveis de Ambiente (estrutura, sem valores)
 ```env
-# Estrutura (sem valores sensíveis)
-[NOME_DA_VAR]=[tipo/formato esperado]
-[OUTRA_VAR]=[tipo/formato esperado]
+[NOME_VAR]=[tipo/formato esperado]
 ```
 
+### Configurações Estabelecidas
+[configs relevantes — formatters, linters, padrões de projeto]
+
 ---
 
-## 📌 Decisões Tomadas
+## 📌 DECISÕES TOMADAS (cronológicas)
 
-> Cronológicas. Incluir justificativa sempre que disponível.
-> Não resumir — preservar nuances.
-
-### Decisão 1 — [nome curto da decisão]
-- **O que foi decidido:** [descrição completa]
-- **Justificativa:** [por quê esta e não outra]
-- **Alternativas descartadas:** [o que foi rejeitado e por quê]
-- **Posição na conversa:** [ex: após discutir autenticação, turno ~15]
+### Decisão 1 — [nome curto]
+- **O que:** [descrição completa]
+- **Por quê:** [justificativa]
+- **Descartado:** [alternativas rejeitadas e motivo]
+- **Turno aprox.:** [N]
 
 ### Decisão 2 — [nome curto]
-- **O que foi decidido:** [...]
-- **Justificativa:** [...]
-- **Alternativas descartadas:** [...]
-- **Posição na conversa:** [...]
-
-*(continuar para todas as decisões da conversa)*
+[repetir estrutura]
 
 ---
 
-## 💻 Código e Artefatos
+## 💻 CÓDIGO E ARTEFATOS
 
-### Estrutura de Arquivos Estabelecida
+### Estrutura de Arquivos
 ```
 [projeto]/
 ├── [pasta]/
@@ -103,176 +76,251 @@
 └── [arquivo] — [o que faz]
 ```
 
-### Arquivos por Status
-| Arquivo                | Status              | Descrição                    |
-|------------------------|---------------------|------------------------------|
-| `[path/arquivo.ext]`   | ✅ Criado           | [o que contém]               |
-| `[path/arquivo.ext]`   | 🔄 Em progresso     | [o que falta]                |
-| `[path/arquivo.ext]`   | 📋 Planejado        | [o que deve conter]          |
+### Status dos Arquivos
+| Arquivo | Status | Descrição |
+|---------|--------|-----------|
+| `[path]` | ✅ Completo / 🔄 Parcial / 📋 Planejado | [o que contém] |
 
-### Código Crítico — Não Pode Ser Perdido
+### Código Crítico (incluir COMPLETO — nunca truncar)
 
-#### [nome do trecho — ex: Schema do banco]
-```[linguagem]
-[código completo — não resumir]
-```
-
-#### [nome do trecho — ex: Lógica de autenticação]
+#### [nome do trecho]
 ```[linguagem]
 [código completo]
 ```
 
-*(incluir todos os snippets críticos gerados na conversa)*
+---
+
+## 🔍 PROBLEMAS E TENTATIVAS
+
+### Problema 1 — [nome]
+- **Descrição:** [detalhes]
+- **Tentativas que falharam:** [abordagem] → [por que falhou]
+- **Solução adotada:** [o que funcionou]
+- **Status:** ✅ Resolvido / 🔄 Em progresso / ❌ Bloqueado
 
 ---
 
-## 📋 Requisitos
+## 📋 REQUISITOS E RESTRIÇÕES
 
 ### Funcionais
-- [ ] [RF01] [o que o sistema deve fazer]
-- [ ] [RF02] [outro requisito]
+- [ ] [RF01] [o que deve fazer]
 
-### Não-Funcionais / Restrições Técnicas
-- ❌ **Proibido:** [o que não pode ser usado/feito, ex: sem dependências de terceiros]
-- ⚠️ **Limitação:** [restrição de ambiente, ex: deve rodar em Node 18 LTS]
-- 🔒 **Segurança:** [requisitos de segurança mencionados]
+### Restrições Técnicas
+- ❌ **Proibido:** [o que não pode ser usado]
+- ⚠️ **Limitação:** [restrição de ambiente]
 
 ### Preferências do Usuário
-| Preferência          | Valor                                    |
-|----------------------|------------------------------------------|
-| Idioma do código     | [PT-BR / EN / misto]                     |
-| Estilo de código     | [ex: comentado, funcional, sem classes]  |
-| Formato de resposta  | [ex: conciso, sem markdown excessivo]    |
-| Outras               | [outras preferências mencionadas]        |
+| Preferência | Valor |
+|-------------|-------|
+| Idioma do código | [PT-BR / EN] |
+| Estilo | [ex: comentado, funcional] |
+| Formato de resposta | [ex: conciso] |
 
 ---
 
-## 🔍 Problemas, Tentativas e Soluções
+## 📍 ESTADO ATUAL
 
-### Problema 1 — [nome descritivo]
-**Descrição:** [o problema em detalhes]
+**O que estava sendo feito:**
+[descrição precisa e completa]
 
-**Tentativas que falharam:**
-1. [abordagem tentada] → [por que falhou]
-2. [abordagem tentada] → [por que falhou]
+**Ponto exato de parada:**
+[última linha/ação/decisão — cirúrgico]
 
-**Solução adotada:** [o que funcionou]  
-**Status:** [✅ Resolvido / 🔄 Em progresso / ❌ Bloqueado]
+### Próximos Passos
+1. **[Passo imediato]** — [detalhes]
+2. **[Passo seguinte]** — [detalhes]
 
-### Problema 2 — [nome]
-*(repetir estrutura)*
-
----
-
-## ❓ Estado Atual e Próximos Passos
-
-### O que estava sendo feito no momento desta transferência:
-> [Descrição precisa e completa do ponto exato — o que estava em discussão,
-> qual parte do código estava sendo escrita, qual decisão estava sendo tomada]
-
-### Próximos Passos (ordem definida)
-1. **[Passo imediato]**
-   - Detalhes: [o que exatamente fazer]
-   - Contexto: [por que este passo agora]
-
-2. **[Passo seguinte]**
-   - Detalhes: [...]
-
-3. **[Passo posterior]**
-   - Detalhes: [...]
-
-### Perguntas em Aberto / Decisões Pendentes
-- ❓ [pergunta que ainda precisa de resposta do usuário]
-- ❓ [decisão técnica ainda não tomada]
-- ❓ [ponto de investigação pendente]
+### Pendências
+- ❓ [questão em aberto]
 
 ---
 
-## 🔗 Referências e Recursos
-
-| Recurso                    | URL / Local                  | Para que serve          |
-|----------------------------|------------------------------|-------------------------|
-| [nome]                     | [url ou caminho]             | [finalidade]            |
-
----
-
-## 📋 Prompt de Retomada para Novo Agente
-
-> **Este é o bloco mais importante do relatório.**
-> Cole como PRIMEIRA mensagem na nova conversa — com ou sem o arquivo .md.
-> Deve ser completamente auto-suficiente: o novo agente não precisa de mais nada para continuar.
+## 🔗 REFERÊNCIAS
+| Recurso | URL / Local | Finalidade |
+|---------|-------------|------------|
+| [nome] | [url] | [para que serve] |
 
 ---
 
-```
-════════════════════════════════════════════════════════════════
-PROMPT DE RETOMADA — CONTEXT GUARDIAN
-Copie todo este bloco e cole como PRIMEIRA mensagem na nova conversa.
-════════════════════════════════════════════════════════════════
+## 📋 PROMPTS DE RETOMADA
 
-Você está assumindo uma conversa que foi transferida por limite de contexto.
-Leia tudo abaixo antes de responder qualquer coisa.
+### Prompt Completo
+[inserir bloco completo — ver estrutura no SKILL.md Passo 4]
 
-## IDENTIDADE
-Projeto: [nome exato do projeto]
-Objetivo: [uma frase precisa — o que estamos construindo/resolvendo]
-Eu sou: [papel/contexto do usuário, ex: "desenvolvedor solo, foco back-end Python"]
-
-## ESTADO NO MOMENTO DA SUSPENSÃO
-Estávamos em: [descrição exata da atividade em andamento]
-Ponto exato de parada: [última coisa dita/escrita antes da evacuação — ser cirúrgico]
-Status do trabalho: [ex: "código 60% escrito", "decisão tomada, sem implementação ainda"]
-
-## DECISÕES TOMADAS — NÃO QUESTIONAR
-1. [decisão] — [justificativa em uma linha]
-2. [decisão] — [justificativa em uma linha]
-3. [decisão] — [justificativa em uma linha]
-[continuar para todas as decisões]
-
-## RESTRIÇÕES ABSOLUTAS
-- ❌ [o que não pode ser usado/feito] — [motivo]
-- ❌ [o que não pode ser usado/feito] — [motivo]
-[sem restrições = omitir esta seção]
-
-## STACK E AMBIENTE
-- Linguagem: [nome + versão exata]
-- Framework: [nome + versão]
-- Banco: [nome + versão + local ex: local/cloud]
-- Infra/Deploy: [detalhes]
-- Ambiente: [ex: macOS local, Docker, WSL2]
-
-## HISTÓRICO DA CONVERSA ANTERIOR
-[Parágrafo(s) denso(s) cobrindo: o que foi construído, em que ordem, quais problemas
-foram encontrados, quais abordagens foram tentadas e descartadas, o que funcionou.
-Não resumir demais — este é o único histórico que o novo agente terá.]
-
-## CÓDIGO EXISTENTE E ARTEFATOS
-[Incluir snippets de código críticos, especialmente qualquer código incompleto
-que estava sendo escrito no momento da suspensão. Incluir estrutura de pastas
-se estabelecida. Nunca truncar código parcial — é fundamental para continuidade.]
-
-```[linguagem]
-// [nome do arquivo / contexto]
-[código]
+### Prompt Compacto
+[inserir bloco compacto — ver estrutura no SKILL.md Mecanismo 3]
 ```
 
-## ARQUIVOS POR STATUS
-| Arquivo | Status | O que contém |
-|---------|--------|--------------|
-| `[path]` | ✅ Completo / 🔄 Parcial / 📋 Planejado | [descrição] |
+---
 
-## PROBLEMAS EM ABERTO
-- ❓ [problema não resolvido ou questão pendente]
-- ❓ [decisão técnica ainda não tomada]
+## TEMPLATE ESTRATÉGICO / PLANEJAMENTO
 
-## PRIMEIRA AÇÃO DO NOVO AGENTE
-[Instrução imperativa, sem ambiguidade, sem margem para interpretação.
-Exemplo: "Continue escrevendo a função validate_token() — o corpo estava sendo
-escrito e parou após a verificação de expiração. A próxima linha deve verificar
-a assinatura com JWT_SECRET e retornar o payload decodificado ou lançar AuthError."]
+```markdown
+# 📋 RELATÓRIO DE TRANSFERÊNCIA — [NOME DO PROJETO]
+**Context Guardian v1.1** | Turno: [N] | Perfil: Estratégico
 
-## REFERÊNCIA COMPLETA
-O relatório detalhado está no arquivo: [nome-do-arquivo.md]
-Faça upload deste arquivo junto com este prompt para referência completa.
-════════════════════════════════════════════════════════════════
+---
+
+## 🔴 LEIA PRIMEIRO
+- 🔴 [decisão estratégica crítica 1]
+- 🔴 [restrição crítica de negócio]
+
+---
+
+## 🎯 CONTEXTO
+
+| Campo | Valor |
+|-------|-------|
+| **Projeto / Iniciativa** | [nome] |
+| **Objetivo estratégico** | [em 1-2 frases] |
+| **Fase** | [ex: definição de roadmap Q3] |
+| **Stakeholders** | [quem está envolvido] |
+| **Prazo / Marco** | [se mencionado] |
+
+---
+
+## 📌 DECISÕES TOMADAS (cronológicas)
+
+### Decisão 1 — [nome]
+- **O que:** [descrição]
+- **Justificativa:** [raciocínio estratégico]
+- **Alternativas descartadas:** [e por quê]
+- **Impacto:** [o que muda com essa decisão]
+
+---
+
+## ❌ FORA DO ESCOPO (definido explicitamente)
+
+- [o que foi explicitamente descartado ou adiado]
+- [restrições de negócio ou orçamento]
+
+---
+
+## 📊 ESTADO DO PLANEJAMENTO
+
+### O que foi definido
+- [lista do que está fechado]
+
+### O que está em aberto
+- ❓ [decisão pendente]
+- ❓ [questão não resolvida]
+
+### Próximos Passos
+1. [ação] — [responsável / prazo se mencionado]
+
+---
+
+## 📋 PROMPTS DE RETOMADA
+
+### Prompt Compacto (recomendado para este perfil)
+[inserir bloco compacto]
+
+### Prompt Completo
+[inserir bloco completo]
+```
+
+---
+
+## TEMPLATE CRIATIVO
+
+```markdown
+# 📋 RELATÓRIO DE TRANSFERÊNCIA — [NOME DA OBRA/PROJETO]
+**Context Guardian v1.1** | Turno: [N] | Perfil: Criativo
+
+---
+
+## 🔴 LEIA PRIMEIRO
+- 🔴 [diretriz criativa inegociável]
+- 🔴 [restrição de tom ou estilo]
+
+---
+
+## 🎯 IDENTIDADE CRIATIVA
+
+| Campo | Valor |
+|-------|-------|
+| **Obra / Projeto** | [nome] |
+| **Formato** | [ex: artigo, roteiro, conto, campanha] |
+| **Objetivo** | [o que a obra deve causar/comunicar] |
+| **Público** | [para quem] |
+| **Fase** | [ex: rascunho do segundo ato] |
+
+---
+
+## 🎨 DIRETRIZES CRIATIVAS
+
+### Tom e Voz
+[descrição detalhada do tom — formal/informal, irônico/direto, etc.]
+
+### Restrições de Estilo
+- ❌ [o que NÃO usar — palavras, estruturas, referências proibidas]
+- ✅ [o que DEVE estar presente]
+
+### Referências e Inspirações
+[obras, autores, exemplos que guiam o estilo]
+
+---
+
+## 📄 ESTADO DA OBRA
+
+### O que foi produzido
+[resumo do conteúdo criado até agora — preservar nuances]
+
+### Ponto de parada
+[exatamente onde estava ao ser suspenso — parágrafo, cena, seção]
+
+### Fio narrativo / Argumento em construção
+[o raciocínio ou narrativa que estava sendo desenvolvida]
+
+---
+
+## 📋 PROMPTS DE RETOMADA
+
+### Prompt Compacto (recomendado para este perfil)
+[inserir bloco compacto]
+
+### Prompt Completo
+[inserir bloco completo]
+```
+
+---
+
+## TEMPLATE GERAL (Fallback)
+
+```markdown
+# 📋 RELATÓRIO DE TRANSFERÊNCIA
+**Context Guardian v1.1** | Turno: [N] | Perfil: Geral
+
+---
+
+## 🔴 LEIA PRIMEIRO
+- 🔴 [item crítico]
+
+---
+
+## 🎯 CONTEXTO
+- **Tópico:** [assunto da conversa]
+- **Objetivo:** [o que o usuário quer alcançar]
+- **Estado:** [onde chegamos]
+
+---
+
+## 📌 DECISÕES E DEFINIÇÕES
+[lista cronológica de tudo que foi decidido ou definido]
+
+## 🔍 PROBLEMAS RESOLVIDOS
+[o que foi resolvido e como]
+
+## 📍 ESTADO ATUAL E PRÓXIMOS PASSOS
+[o que estava sendo feito e o que vem a seguir]
+
+---
+
+## 📋 PROMPTS DE RETOMADA
+
+### Prompt Compacto
+[inserir bloco compacto]
+
+### Prompt Completo
+[inserir bloco completo]
 ```
