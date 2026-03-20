@@ -1,3 +1,18 @@
+## v1.2.0
+- Perfil Jurídico: novo perfil especializado com mapa de processos, extração obrigatória de prazos (sempre em vermelho, mesmo em modo silencioso), rastreamento de teses, peças, provas e estratégia processual; gatilhos adicionais de evacuação para confusão entre processos e referência a fundamento descartado
+- Perfil Médico/Científico: novo perfil com protocolo terapêutico, contraindicações em vermelho, achados, resultados e referências bibliográficas
+- Perfil Educacional/Didático: novo perfil com nível do aprendiz, conteúdo ensinado, dificuldades, analogias usadas (sem repetir) e próxima etapa didática
+- Perfil Investigativo/Pesquisa: novo perfil com mapa de fontes, achados, contradições entre fontes, lacunas, linha do tempo e conexões entre entidades
+- 4 novos templates de relatório .md correspondentes aos novos perfis
+- SKILL.md: descrição do frontmatter atualizada com lista de todos os perfis e comandos de forçar perfil
+- SKILL.md: checklist interna expandida com itens específicos para perfis Jurídico e Médico
+- SKILL.md: varredura de evacuação expandida com seções C (Fatos Jurídicos), G (Protocolo/Metodologia), H (Estado Didático) e I (Mapa de Fontes)
+- SKILL.md: Regras Absolutas expandidas — nunca omitir prazo processual em modo silencioso; nunca salvar dados de clientes/partes/pacientes na memória
+- SKILL.md: Prompt Completo de Retomada atualizado com campo "Contexto Específico do Perfil" substituindo campo fixo de stack
+- README: todos os perfis listados; seção de automação atualizada; nota de limitação de conversas em andamento com workaround documentado
+- README: skill → habilidade em todo o documento
+- release.py: texto de release corrigido com caminho correto (Personalizar → Habilidades) e pré-requisito Code Execution
+
 ## v1.1.1
 - Fix: caminho de instalação corrigido no README (Personalizar → Skills, não Configurações → Skills)
 - Fix: adicionado pré-requisito obrigatório de habilitar "Code Execution" antes da instalação
