@@ -1,0 +1,14 @@
+## v1.0.0
+- Modo Sentinela: monitoramento proativo ativado no início da conversa com registro de fatos-âncora e varredura automática a cada 20 turnos
+- Modo Evacuação: varredura completa da conversa ao detectar degradação, com geração obrigatória de arquivo .md via create_file + present_files
+- Prompt de Retomada: bloco auto-suficiente gerado na evacuação com ponto exato de parada e primeira ação imperativa para o novo agente
+- 10+ comandos de ativação em PT-BR e inglês, incluindo atalhos /cg e /evacuar
+- Detecção automática por sinais internos (incerteza, repetição, contradição) e por gatilhos textuais do usuário
+- Evacuação automática após 50 turnos sem checkpoint registrado
+- Orquestrador Python completo com loop de chat, estimativa de tokens e reinício transparente de sessão
+- Orquestrador Node.js/TypeScript equivalente ao Python
+- Sistema de subagentes para Claude Code com transferência invisível ao usuário
+- Fluxo n8n com JSON importável para automação visual sem código
+- Template de relatório .md com 8 seções estruturadas e Prompt de Retomada integrado
+- Taxonomia de sinais de degradação em 3 níveis: crítico, moderado e preventivo
+- release.py com validação de zip por allowlist, changelog compilado por faixa de versões e upload automático via API do GitHub
