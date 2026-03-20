@@ -18,9 +18,9 @@ O fluxo é o mesmo em todos os ambientes:
 ```
 
 **Limiares recomendados:**
-- `claude-opus-4`    → transferir ao atingir ~180.000 tokens (janela: 200k)
-- `claude-sonnet-4`  → transferir ao atingir ~180.000 tokens (janela: 200k)
-- `claude-haiku-4`   → transferir ao atingir ~180.000 tokens (janela: 200k)
+- `claude-opus-4-6`    → transferir ao atingir ~180.000 tokens (janela: 200k)
+- `claude-sonnet-4-6`  → transferir ao atingir ~180.000 tokens (janela: 200k)
+- `claude-haiku-4-5`   → transferir ao atingir ~180.000 tokens (janela: 200k)
 - Gatilho preventivo recomendado: **85% da janela** para ter margem para a evacuação
 
 ---
@@ -42,7 +42,7 @@ from typing import Optional
 
 # ─── Configuração ────────────────────────────────────────────────────────────
 
-MODEL = "claude-sonnet-4-5"
+MODEL = "claude-sonnet-4-6"
 MAX_TOKENS_RESPONSE = 8192
 CONTEXT_LIMIT = 200_000          # janela máxima do modelo
 EVACUATION_THRESHOLD = 0.85      # evacuar ao atingir 85% da janela
@@ -304,7 +304,7 @@ import * as fs from "fs";
 
 // ─── Configuração ─────────────────────────────────────────────────────────
 
-const MODEL = "claude-sonnet-4-5";
+const MODEL = "claude-sonnet-4-6";
 const CONTEXT_LIMIT = 200_000;
 const EVACUATION_THRESHOLD = 0.85;
 const EVACUATION_LIMIT = Math.floor(CONTEXT_LIMIT * EVACUATION_THRESHOLD);
@@ -619,7 +619,7 @@ Fluxo para o n8n que monitora tokens e transfere automaticamente.
           "anthropic-version": "2023-06-01"
         },
         "body": {
-          "model": "claude-sonnet-4-5",
+          "model": "claude-sonnet-4-6",
           "max_tokens": 8192,
           "messages": "={{ $json.messages.concat([{role:'user',content:'CONTEXT GUARDIAN — EVACUAÇÃO: gere o Relatório de Transferência completo com Prompt de Retomada'}]) }}"
         }
@@ -640,7 +640,7 @@ Fluxo para o n8n que monitora tokens e transfere automaticamente.
         "url": "https://api.anthropic.com/v1/messages",
         "method": "POST",
         "body": {
-          "model": "claude-sonnet-4-5",
+          "model": "claude-sonnet-4-6",
           "max_tokens": 8192,
           "messages": [{
             "role": "user",
@@ -665,7 +665,7 @@ Fluxo para o n8n que monitora tokens e transfere automaticamente.
         "url": "https://api.anthropic.com/v1/messages",
         "method": "POST",
         "body": {
-          "model": "claude-sonnet-4-5",
+          "model": "claude-sonnet-4-6",
           "max_tokens": 8192,
           "messages": "={{ $json.messages }}"
         }
@@ -711,7 +711,7 @@ REDIS_PORT=6379
 ANTHROPIC_API_KEY=sk-ant-api03-...
 
 # Opcional — sobrescrever defaults
-CG_MODEL=claude-sonnet-4-5
+CG_MODEL=claude-sonnet-4-6
 CG_EVACUATION_THRESHOLD=0.85
 CG_MAX_TOKENS_RESPONSE=8192
 ```

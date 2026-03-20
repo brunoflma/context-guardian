@@ -9,7 +9,7 @@ Perfis: Técnico · Estratégico · Criativo · Geral
 
 ```markdown
 # 📋 RELATÓRIO DE TRANSFERÊNCIA — [NOME DO PROJETO]
-**Context Guardian v1.1** | Turno: [N] | Perfil: Técnico
+**Context Guardian v1.1.1** | Turno: [N] | Perfil: Técnico
 Motivo: [degradação / conversa longa / pedido do usuário]
 
 ---
@@ -157,7 +157,7 @@ Motivo: [degradação / conversa longa / pedido do usuário]
 
 ```markdown
 # 📋 RELATÓRIO DE TRANSFERÊNCIA — [NOME DO PROJETO]
-**Context Guardian v1.1** | Turno: [N] | Perfil: Estratégico
+**Context Guardian v1.1.1** | Turno: [N] | Perfil: Estratégico
 
 ---
 
@@ -225,7 +225,7 @@ Motivo: [degradação / conversa longa / pedido do usuário]
 
 ```markdown
 # 📋 RELATÓRIO DE TRANSFERÊNCIA — [NOME DA OBRA/PROJETO]
-**Context Guardian v1.1** | Turno: [N] | Perfil: Criativo
+**Context Guardian v1.1.1** | Turno: [N] | Perfil: Criativo
 
 ---
 
@@ -289,7 +289,7 @@ Motivo: [degradação / conversa longa / pedido do usuário]
 
 ```markdown
 # 📋 RELATÓRIO DE TRANSFERÊNCIA
-**Context Guardian v1.1** | Turno: [N] | Perfil: Geral
+**Context Guardian v1.1.1** | Turno: [N] | Perfil: Geral
 
 ---
 

@@ -30,10 +30,22 @@ O Context Guardian opera em três modos e seis mecanismos de proteção:
 
 ## Instalação
 
+### Pré-requisito obrigatório
+
+Antes de instalar, certifique-se de que **Code Execution** está ativado:
+
+> **Configurações → Capacidades → ativar "Criação de código e arquivos"**
+
+Sem essa opção ativada, a skill não carrega, mesmo que o upload seja feito corretamente.
+
+### Passos
+
 1. Acesse a [última release](https://github.com/brunoflma/context-guardian/releases/latest) e baixe o arquivo `context-guardian-vX.X.X.zip`
-2. Extraia o zip
-3. No Claude.ai: **avatar → Configurações → Skills → Instalar Skill**
-4. Selecione a pasta `context-guardian` extraída
+2. No Claude.ai: **avatar → Personalizar → Skills → Instalar Skill**
+3. Faça upload do arquivo `.zip` baixado (não é necessário extrair)
+4. Ative o toggle ao lado da skill na lista
+
+> **Atenção:** o `.zip` de instalação é o arquivo `context-guardian-vX.X.X.zip` disponível nos assets da release — não o arquivo do repositório baixado via "Download ZIP" do GitHub.
 
 ---
 

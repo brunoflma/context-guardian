@@ -1,3 +1,10 @@
+## v1.1.1
+- Fix: caminho de instalação corrigido no README (Personalizar → Skills, não Configurações → Skills)
+- Fix: adicionado pré-requisito obrigatório de habilitar "Code Execution" antes da instalação
+- Fix: instrução de extrair o ZIP removida — o upload é feito com o .zip diretamente
+- Fix: campo `compatibility: claude.ai, claude-code` adicionado ao frontmatter do SKILL.md
+- Fix: modelos desatualizados no automation-orchestrator.md atualizados para claude-sonnet-4-6, claude-opus-4-6, claude-haiku-4-5
+
 ## v1.1.0
 - Checkpoint por fase: Claude detecta viradas de fase (conclusão de módulo, decisão arquitetural grande, mudança de assunto, início de área de risco) e faz checkpoint nesses momentos — não apenas a cada 20 turnos
 - Detecção semântica de degradação: 5 novos sinais graduais documentados (genericidade crescente, perda de convenções, qualidade regressiva, disclaimer excessivo, perda de memória de fase) com exemplos concretos e ação para cada um

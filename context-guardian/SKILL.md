@@ -1,5 +1,6 @@
 ---
 name: context-guardian
+compatibility: claude.ai, claude-code
 description: |
   Protege contexto com 3 modos: Sentinela, Silencioso e Evacuação.
 
@@ -23,7 +24,7 @@ description: |
   NUNCA apenas texto no chat.
 ---
 
-# Context Guardian v1.1 — Guia Completo
+# Context Guardian v1.1.1 — Guia Completo
 
 ---
 
@@ -55,7 +56,7 @@ Frases aceitas no início da conversa:
 ### Resposta de Ativação (obrigatória)
 
 ```
-🛡️ **Context Guardian v1.1 — Modo Sentinela ATIVO**
+🛡️ **Context Guardian v1.1.1 — Modo Sentinela ATIVO**
 
 **Fatos-âncora registrados:**
 - Turno atual: [N]
