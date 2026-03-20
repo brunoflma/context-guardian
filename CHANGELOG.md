@@ -1,3 +1,6 @@
+## v1.2.1
+- Fix: campo description do SKILL.md reduzido para 981 caracteres (limite da plataforma: 1024) — a versão 1.2.0 impedia o upload da Habilidade com o erro "field 'description' must be at most 1024 characters"
+
 ## v1.2.0
 - Perfil Jurídico: novo perfil especializado com mapa de processos, extração obrigatória de prazos (sempre em vermelho, mesmo em modo silencioso), rastreamento de teses, peças, provas e estratégia processual; gatilhos adicionais de evacuação para confusão entre processos e referência a fundamento descartado
 - Perfil Médico/Científico: novo perfil com protocolo terapêutico, contraindicações em vermelho, achados, resultados e referências bibliográficas

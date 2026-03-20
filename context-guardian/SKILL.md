@@ -4,31 +4,26 @@ compatibility: claude.ai, claude-code
 description: |
   Protege contexto com 3 modos: Sentinela, Silencioso e Evacuação.
 
-  SENTINELA — ativar com: "ativar context guardian", "context guardian on",
-  "ativar sentinela", "iniciar monitoramento", "cg on", "/cg"
+  SENTINELA — ativar: "ativar context guardian", "ativar sentinela", "cg on", "/cg"
   Registra fatos-âncora, detecta viradas de fase, evacua ao detectar degradação.
 
-  SILENCIOSO — ativar com: "modo silencioso", "cg silent"
+  SILENCIOSO — ativar: "modo silencioso", "cg silent"
   Checkpoints internos sem mensagem — Claude só fala ao detectar problema.
 
   EVACUAÇÃO — ativar IMEDIATAMENTE quando:
-  - Claude está incerto sobre algo já estabelecido nesta conversa
-  - Claude repetiu pergunta ou conteúdo já fornecido
-  - Claude contradiz decisão anterior
+  - Claude incerto sobre algo estabelecido, repetiu conteúdo ou contradiz decisão anterior
   - Usuário diz: "você esqueceu", "já falei", "compile tudo", "gerar relatório",
     "nova conversa", "contexto perdido", "transferir conversa", "/evacuar"
   - Conversa passa de 50 turnos sem checkpoint
-  - Qualquer variação de "o que discutimos", "resuma tudo", "checkpoint agora"
+  - Variação de "o que discutimos", "resuma tudo", "checkpoint agora"
 
   Evacuação: gerar .md + Prompts de Retomada via create_file + present_files.
   NUNCA apenas texto no chat.
 
-  PERFIS DISPONÍVEIS:
-  Técnico · Jurídico · Estratégico · Criativo · Médico/Científico · Educacional · Investigativo · Geral
-  Forçar perfil: "perfil jurídico", "perfil técnico", "perfil estratégico", etc.
+  PERFIS: Técnico · Jurídico · Estratégico · Criativo · Médico · Educacional · Investigativo · Geral
 ---
 
-# Context Guardian v1.2.0 — Guia Completo
+# Context Guardian v1.2.1 — Guia Completo
 
 ---
 
@@ -60,7 +55,7 @@ Frases aceitas no início da conversa:
 ### Resposta de Ativação (obrigatória)
 
 ```
-🛡️ **Context Guardian v1.2.0 — Modo Sentinela ATIVO**
+🛡️ **Context Guardian v1.2.1 — Modo Sentinela ATIVO**
 
 **Fatos-âncora registrados:**
 - Turno atual: [N]

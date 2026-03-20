@@ -331,7 +331,7 @@ Motivo: [degradação / conversa longa / pedido do usuário]
 
 ```markdown
 # 📋 RELATÓRIO DE TRANSFERÊNCIA — [NOME DO CASO / PROCESSO]
-**Context Guardian v1.2.0** | Turno: [N] | Perfil: Jurídico
+**Context Guardian v1.2.1** | Turno: [N] | Perfil: Jurídico
 Motivo: [degradação / conversa longa / pedido do usuário]
 
 ---
@@ -462,7 +462,7 @@ Motivo: [degradação / conversa longa / pedido do usuário]
 
 ```markdown
 # 📋 RELATÓRIO DE TRANSFERÊNCIA — [NOME DO CASO / PESQUISA]
-**Context Guardian v1.2.0** | Turno: [N] | Perfil: Médico/Científico
+**Context Guardian v1.2.1** | Turno: [N] | Perfil: Médico/Científico
 Motivo: [degradação / conversa longa / pedido do usuário]
 
 ---
@@ -540,7 +540,7 @@ Motivo: [degradação / conversa longa / pedido do usuário]
 
 ```markdown
 # 📋 RELATÓRIO DE TRANSFERÊNCIA — [NOME DA TRILHA / AULA / MATERIAL]
-**Context Guardian v1.2.0** | Turno: [N] | Perfil: Educacional
+**Context Guardian v1.2.1** | Turno: [N] | Perfil: Educacional
 Motivo: [degradação / conversa longa / pedido do usuário]
 
 ---
@@ -606,7 +606,7 @@ Motivo: [degradação / conversa longa / pedido do usuário]
 
 ```markdown
 # 📋 RELATÓRIO DE TRANSFERÊNCIA — [NOME DA INVESTIGAÇÃO / PESQUISA]
-**Context Guardian v1.2.0** | Turno: [N] | Perfil: Investigativo
+**Context Guardian v1.2.1** | Turno: [N] | Perfil: Investigativo
 Motivo: [degradação / conversa longa / pedido do usuário]
 
 ---
