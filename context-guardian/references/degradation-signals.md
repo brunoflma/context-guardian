@@ -28,7 +28,7 @@ Degradação ocorrendo ativamente.
 
 ---
 
-## Nível 3 — SEMÂNTICO (Sinais Graduais — NOVO em v1.1.0)
+## Nível 3 — SEMÂNTICO (Sinais Graduais — NOVO em v1.1)
 
 Sinais sutis que precedem a degradação total. Detectar cedo evita evacuação.
 

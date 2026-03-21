@@ -1,27 +1,12 @@
-## v1.2.1
-- Fix: campo description do SKILL.md reduzido para 981 caracteres (limite da plataforma: 1024) — a versão 1.2.0 impedia o upload da Habilidade com o erro "field 'description' must be at most 1024 characters"
-
-## v1.2.0
-- Perfil Jurídico: novo perfil especializado com mapa de processos, extração obrigatória de prazos (sempre em vermelho, mesmo em modo silencioso), rastreamento de teses, peças, provas e estratégia processual; gatilhos adicionais de evacuação para confusão entre processos e referência a fundamento descartado
-- Perfil Médico/Científico: novo perfil com protocolo terapêutico, contraindicações em vermelho, achados, resultados e referências bibliográficas
-- Perfil Educacional/Didático: novo perfil com nível do aprendiz, conteúdo ensinado, dificuldades, analogias usadas (sem repetir) e próxima etapa didática
-- Perfil Investigativo/Pesquisa: novo perfil com mapa de fontes, achados, contradições entre fontes, lacunas, linha do tempo e conexões entre entidades
-- 4 novos templates de relatório .md correspondentes aos novos perfis
-- SKILL.md: descrição do frontmatter atualizada com lista de todos os perfis e comandos de forçar perfil
-- SKILL.md: checklist interna expandida com itens específicos para perfis Jurídico e Médico
-- SKILL.md: varredura de evacuação expandida com seções C (Fatos Jurídicos), G (Protocolo/Metodologia), H (Estado Didático) e I (Mapa de Fontes)
-- SKILL.md: Regras Absolutas expandidas — nunca omitir prazo processual em modo silencioso; nunca salvar dados de clientes/partes/pacientes na memória
-- SKILL.md: Prompt Completo de Retomada atualizado com campo "Contexto Específico do Perfil" substituindo campo fixo de stack
-- README: todos os perfis listados; seção de automação atualizada; nota de limitação de conversas em andamento com workaround documentado
-- README: skill → habilidade em todo o documento
-- release.py: texto de release corrigido com caminho correto (Personalizar → Habilidades) e pré-requisito Code Execution
-
-## v1.1.1
-- Fix: caminho de instalação corrigido no README (Personalizar → Skills, não Configurações → Skills)
-- Fix: adicionado pré-requisito obrigatório de habilitar "Code Execution" antes da instalação
-- Fix: instrução de extrair o ZIP removida — o upload é feito com o .zip diretamente
-- Fix: campo `compatibility: claude.ai, claude-code` adicionado ao frontmatter do SKILL.md
-- Fix: modelos desatualizados no automation-orchestrator.md atualizados para claude-sonnet-4-6, claude-opus-4-6, claude-haiku-4-5
+## v1.3.0
+- Correção arquitetônica: checkpoints manuais periódicos promovidos a camada primária de proteção — a skill agora comunica isso claramente ao usuário na ativação
+- Intervalo de checkpoint definido pelo usuário: Claude pergunta o intervalo na ativação ("a cada quantos turnos?") em vez de usar 20 fixos; recomendado 10 para sessões técnicas densas
+- Lembrete de checkpoint ativo: Claude emite alerta no chat a cada N turnos respondidos com opção de confirmar ("ok") ou evacuar; não bloqueia o fluxo se ignorado
+- Limitações documentadas honestamente na skill: sem detecção contínua em background, sem acesso a tokens no Claude.ai, detecção automática de fase como complemento e não garantia
+- Detecção automática de fase mantida como melhor esforço com eventos explícitos (conclusão declarada, decisão arquitetural grande, 8+ decisões acumuladas)
+- Checklist interna expandida com verificação de especificidade e uso de convenções
+- Modo silencioso com aviso: usuário informado que responsabilidade de checkpoint manual recai sobre ele nesse modo
+- Resposta de ativação atualizada: lista o que é garantido vs. melhor esforço
 
 ## v1.1.0
 - Checkpoint por fase: Claude detecta viradas de fase (conclusão de módulo, decisão arquitetural grande, mudança de assunto, início de área de risco) e faz checkpoint nesses momentos — não apenas a cada 20 turnos

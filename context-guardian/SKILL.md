@@ -1,46 +1,70 @@
 ---
 name: context-guardian
-compatibility: claude.ai, claude-code
 description: |
   Protege contexto com 3 modos: Sentinela, Silencioso e Evacuação.
 
-  SENTINELA — ativar: "ativar context guardian", "ativar sentinela", "cg on", "/cg"
-  Registra fatos-âncora, detecta viradas de fase, evacua ao detectar degradação.
+  SENTINELA — ativar com: "ativar context guardian", "cg on", "/cg",
+  "ativar sentinela", "iniciar monitoramento", "proteção de contexto"
+  Na ativação: perguntar intervalo de checkpoint, registrar fatos-âncora,
+  emitir lembrete a cada N turnos. Checkpoint manual é a camada primária.
 
-  SILENCIOSO — ativar: "modo silencioso", "cg silent"
-  Checkpoints internos sem mensagem — Claude só fala ao detectar problema.
+  SILENCIOSO — ativar com: "modo silencioso", "cg silent"
+  Suprime lembretes — Claude fala só ao detectar degradação ou a pedido.
 
   EVACUAÇÃO — ativar IMEDIATAMENTE quando:
-  - Claude incerto sobre algo estabelecido, repetiu conteúdo ou contradiz decisão anterior
+  - Claude incerto sobre algo já estabelecido nesta conversa
+  - Claude repetiu pergunta ou conteúdo já fornecido
+  - Claude contradiz decisão anterior
   - Usuário diz: "você esqueceu", "já falei", "compile tudo", "gerar relatório",
     "nova conversa", "contexto perdido", "transferir conversa", "/evacuar"
-  - Conversa passa de 50 turnos sem checkpoint
-  - Variação de "o que discutimos", "resuma tudo", "checkpoint agora"
+  - 50 turnos sem checkpoint confirmado
+  - "o que discutimos", "resuma tudo", "checkpoint agora"
 
   Evacuação: gerar .md + Prompts de Retomada via create_file + present_files.
   NUNCA apenas texto no chat.
-
-  PERFIS: Técnico · Jurídico · Estratégico · Criativo · Médico · Educacional · Investigativo · Geral
 ---
 
-# Context Guardian v1.2.1 — Guia Completo
+# Context Guardian v1.3 — Guia Completo
 
 ---
 
-## Arquitetura Geral
+## Limitações Honestas (ler antes de tudo)
 
-O Context Guardian opera em três modos e aplica seis mecanismos de proteção:
+Esta seção existe para que o usuário saiba exatamente o que a skill consegue
+e o que não consegue — sem promessas que a arquitetura não cumpre.
 
-```
-MODOS                    MECANISMOS
-─────────────────────    ──────────────────────────────────────
-🛡️  Sentinela (ativo)    1. Checkpoint por fase (não só turnos)
-🔇  Silencioso (ativo)   2. Detecção semântica de degradação
-⚠️  Evacuação (disparo)  3. Prompt de Retomada compacto + completo
-                         4. Perfis de conversa especializados (8 perfis)
-                         5. Modo silencioso sem ruído no chat
-                         6. Integração com memória do Claude
-```
+### O que NÃO é possível no Claude.ai
+
+**Monitoramento contínuo em background:** Claude não executa processos paralelos.
+Ele processa uma mensagem e responde. Não há "loop" rodando entre as respostas.
+A skill é lida na ativação — não é re-executada automaticamente a cada turno.
+
+**Detecção de viradas de fase:** depende de Claude reconhecer ativamente o evento
+enquanto está respondendo. Em conversas densas e técnicas, isso falha com frequência
+porque o foco cognitivo está na tarefa, não no monitoramento.
+
+**Evacuação pré-compactação:** Claude não tem acesso ao contador de tokens no Claude.ai.
+Não é possível saber proativamente que a compactação está se aproximando.
+
+### O que É garantido
+
+**Evacuação por gatilho textual:** quando o usuário escreve um dos comandos de
+evacuação, ou quando Claude percebe claramente que repetiu/contradiz algo, a evacuação
+acontece de forma confiável — esses são gatilhos binários e simples.
+
+**Checkpoint por lembrete:** Claude emite lembretes de checkpoint em intervalos
+definidos na ativação. Isso funciona porque não requer detecção — é uma contagem
+explícita de turnos respondidos.
+
+**Relatório completo na evacuação:** uma vez disparada, a evacuação gera o arquivo
+.md e os Prompts de Retomada de forma confiável.
+
+### Consequência para o design
+
+**Checkpoints manuais periódicos são a camada primária de proteção.**
+A detecção automática de fase é secundária e não deve ser confiada isoladamente.
+O usuário que define um intervalo de checkpoint na ativação tem proteção real.
+O usuário que confia só na detecção automática pode ter falhas como as documentadas.
 
 ---
 
@@ -48,34 +72,111 @@ MODOS                    MECANISMOS
 
 ### Ativação
 
-Frases aceitas no início da conversa:
-- `ativar context guardian` · `context guardian on` · `/cg` · `cg on`
-- `ativar sentinela` · `iniciar monitoramento` · `monitorar contexto` · `proteção de contexto`
+Frases aceitas:
+`ativar context guardian` · `context guardian on` · `/cg` · `cg on`
+`ativar sentinela` · `iniciar monitoramento` · `monitorar contexto` · `proteção de contexto`
 
-### Resposta de Ativação (obrigatória)
+### Pergunta obrigatória na ativação
+
+Ao ativar, Claude deve SEMPRE perguntar antes de confirmar:
 
 ```
-🛡️ **Context Guardian v1.2.1 — Modo Sentinela ATIVO**
+🛡️ **Context Guardian v1.3 — Ativando Sentinela**
+
+A cada quantos turnos você quer receber o lembrete de checkpoint?
+Recomendado: 10 turnos para conversas técnicas densas, 15 para conversas mais leves.
+(Responda com um número, ex: "10")
+```
+
+### Resposta de confirmação (após o usuário definir o intervalo)
+
+```
+🛡️ **Context Guardian v1.3 — Modo Sentinela ATIVO**
 
 **Fatos-âncora registrados:**
 - Turno atual: [N]
 - Tópico: [descrição]
 - Objetivo: [objetivo declarado]
 - Decisões tomadas: [lista ou "nenhuma ainda"]
-- Perfil detectado: [Técnico / Jurídico / Estratégico / Criativo / Médico-Científico / Educacional / Investigativo / Geral]
+- Perfil detectado: [Técnico / Estratégico / Criativo / Geral]
 
-**Protocolo:**
-- ✅ Checkpoint por virada de fase + a cada 20 turnos
-- ✅ Detecção semântica de degradação gradual
-- ✅ Evacuação automática com relatório .md + Prompts de Retomada
-- ✅ Preferências recorrentes salvas na memória do Claude
+**Protocolo ativo:**
+- ✅ Lembrete de checkpoint a cada [N] turnos (camada primária)
+- ✅ Evacuação por gatilho textual (confiável)
+- ✅ Evacuação ao detectar repetição ou contradição clara
+- ⚠️  Detecção automática de fase: melhor esforço, não garantida
+- ⚠️  Pré-compactação: não detectável — use o intervalo de checkpoint como proteção
 
-Próximo checkpoint: virada de fase ou turno ~[N+20]
+Próximo checkpoint: turno ~[N + intervalo definido]
+
+Dica: se a conversa for crítica, use "checkpoint agora" a qualquer momento.
 ```
 
-### ⚠️ Limitação de plataforma
+### Lembrete de Checkpoint (emitir a cada N turnos respondidos)
 
-A Habilidade é injetada apenas em conversas novas. Em conversas em andamento, o Claude não a reconhece automaticamente. Workaround: cole o conteúdo deste SKILL.md no chat e peça ativação manual.
+Claude deve contar os turnos respondidos desde a ativação (ou desde o último
+checkpoint confirmado) e emitir ao atingir o intervalo:
+
+```
+⏰ **Checkpoint Context Guardian** — turno ~[N]
+
+É um bom momento para verificar o contexto.
+Digite "ok" para confirmar que está tudo bem, ou "evacuar" para gerar o relatório.
+```
+
+Aguardar resposta do usuário:
+- `"ok"` / `"tudo bem"` / qualquer confirmação → registrar checkpoint, reiniciar contagem
+- `"evacuar"` / qualquer gatilho de evacuação → executar Modo Evacuação
+- Usuário ignora e continua → registrar como não confirmado, emitir próximo lembrete
+  normalmente (não bloquear o fluxo)
+
+### Checkpoint Manual
+
+O usuário pode solicitar a qualquer momento:
+`"fazer checkpoint"` · `"verificar contexto"` · `"checkpoint agora"` · `"status"`
+
+Resposta do checkpoint manual:
+
+```
+🟢 **Checkpoint Context Guardian** (turno ~[N])
+
+**Estado atual:**
+- Objetivo: [confirmar se ainda é o mesmo]
+- Fase: [em que fase estamos]
+- Últimas decisões: [listar as 3 mais recentes]
+- Pendências: [o que está em aberto]
+
+Contexto íntegro? Se sim, diga "ok". Se algo estiver errado, descreva.
+```
+
+### Detecção Automática de Fase (melhor esforço)
+
+Claude deve tentar reconhecer os eventos abaixo e fazer checkpoint quando detectar.
+**Esta detecção não é garantida em conversas densas — é complementar, não primária.**
+
+| Evento | Como reconhecer |
+|--------|----------------|
+| Conclusão explícita de módulo | Usuário diz "perfeito", "feito", "próxima parte" |
+| Decisão arquitetural grande | Escolha definitiva de tecnologia, padrão ou abordagem |
+| Mudança clara de assunto | Tópico muda sem relação com o anterior |
+| Acúmulo de 8+ decisões | Contar decisões desde último checkpoint |
+
+Quando detectar: executar checklist interna e emitir checkpoint ou evacuação.
+
+### Checklist Interna (executar em todo checkpoint)
+
+```
+□ Sei o objetivo principal sem hesitar?
+□ Consigo listar as 3 decisões mais recentes com suas justificativas?
+□ Sei exatamente o que estava sendo feito antes deste turno?
+□ Minhas respostas mantêm o nível de especificidade das anteriores?
+□ Estou usando as convenções estabelecidas (nomes, estilo, padrões)?
+□ Vou contradizer algo dito antes?
+□ Vou perguntar algo que já foi respondido?
+```
+
+0 falhas → checkpoint verde, continuar.
+1+ falha → evacuação imediata.
 
 ---
 
@@ -83,373 +184,99 @@ A Habilidade é injetada apenas em conversas novas. Em conversas em andamento, o
 
 ### Ativação
 
-- `modo silencioso` · `sentinela silencioso` · `cg silent`
+`modo silencioso` · `cg silent` · `sentinela silencioso`
 
-Pode ser ativado junto com o Sentinela ou a qualquer momento durante a conversa.
+Pode ser ativado junto com o Sentinela ou durante a conversa.
 
 ### Comportamento
 
-- Checkpoints acontecem internamente **sem nenhuma mensagem no chat**
+- Lembretes de checkpoint são **suprimidos**
 - Claude só fala em dois casos:
-  1. Detectou degradação → executa evacuação imediatamente
-  2. Usuário pede checkpoint manual explicitamente
+  1. Detectou degradação clara → evacuação imediata
+  2. Usuário solicita checkpoint manualmente
+
+**Atenção ao usuário:** no modo silencioso, a responsabilidade de solicitar
+checkpoints periódicos recai sobre você. Recomendado apenas para conversas
+onde interrupções seriam muito prejudiciais.
 
 ### Desativar
 
-- `modo normal` · `cg verbose` · `desativar silencioso`
-
----
-
-## MECANISMO 1 — Checkpoint por Fase
-
-### Eventos que disparam checkpoint de fase
-
-Claude deve reconhecer e fazer checkpoint quando detectar:
-
-| Evento | Exemplo |
-|--------|---------|
-| Conclusão de módulo/feature | "Perfeito, o módulo de auth está pronto" |
-| Decisão arquitetural grande | Escolha de banco, framework, padrão de design |
-| Conclusão de peça jurídica | "A petição está pronta, agora vamos à contestação" |
-| Definição de tese ou estratégia | Tese defensiva, fundamento legal escolhido |
-| Mudança de assunto significativa | Saindo de implementação para deploy |
-| Início de área de risco | Refatoração, prazo processual crítico, procedimento invasivo |
-| Usuário expressa satisfação com fase | "Ótimo, agora vamos para a parte X" |
-| Acúmulo de 8+ decisões sem checkpoint | Independente de turnos |
-
-### Checkpoint de fase — comportamento
-
-**Modo normal:**
-```
-🟢 **Checkpoint Context Guardian** — fase concluída: [nome da fase]
-Contexto íntegro. Próximo: próxima virada de fase ou turno ~[N+20]
-```
-
-**Modo silencioso:** registrar internamente, sem mensagem.
-
-**Checklist interna (executar em todo checkpoint):**
-```
-□ Sei o objetivo principal sem hesitar?
-□ Consigo listar as 3 decisões mais recentes?
-□ Sei exatamente o que estava sendo feito antes deste turno?
-□ Minhas respostas mantêm o nível de especificidade das anteriores?
-□ Estou usando as convenções estabelecidas no início?
-□ Há contradição entre o que vou dizer e algo dito antes?
-□ Estou prestes a perguntar algo que já foi respondido?
-□ [Jurídico] Estou ciente de todos os prazos processuais críticos?
-□ [Médico] Estou respeitando o protocolo e as contraindicações definidas?
-```
-
-0 falhas → checkpoint verde / silencioso.
-1+ falha → evacuação imediata.
-
----
-
-## MECANISMO 2 — Detecção Semântica de Degradação
-
-Além dos sinais binários, Claude deve detectar sinais **graduais**
-que precedem a degradação total. Ver taxonomia em `references/degradation-signals.md`.
-
-### Sinais de alerta precoce
-
-**Genericidade crescente:** respostas específicas ao projeto ficam genéricas.
-Ex: sugere "você pode usar X ou Y" quando X foi escolhido há 10 turnos.
-→ Ação: checkpoint imediato.
-
-**Perda de convenções:** Claude para de usar nomes, padrões ou estilos
-estabelecidos sem motivo aparente.
-→ Ação: checkpoint imediato.
-
-**Qualidade regressiva:** conteúdo gerado fica mais simples que o padrão
-estabelecido, sem justificativa.
-→ Ação: checkpoint imediato.
-
-**Disclaimer excessivo:** Claude adiciona ressalvas sobre coisas já decididas.
-→ Ação: registrar; se ocorrer 2x seguidas → evacuação.
-
-**[Jurídico] Perda de referências processuais:** Claude deixa de mencionar número
-de processo, partes ou teses já fixadas ao elaborar peças.
-→ Ação: evacuação imediata.
-
-**[Jurídico] Confusão entre processos:** Claude mistura fatos, partes ou pedidos
-de processos distintos discutidos na mesma conversa.
-→ Ação: evacuação imediata.
-
----
-
-## MECANISMO 3 — Prompt de Retomada em Dois Formatos
-
-### Formato Completo (padrão para evacuações automáticas)
-
-Estrutura detalhada com todas as seções — ver Passo 4 do Modo Evacuação abaixo.
-
-### Formato Compacto (~150 palavras, para retomadas rápidas)
-
-```
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-RETOMADA RÁPIDA — [NOME DO PROJETO/CASO]
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Projeto: [nome] | Objetivo: [1 frase]
-Perfil: [tipo] | Contexto: [área/domínio]
-Fase atual: [onde estamos]
-
-Decisões fixas:
-1. [decisão] — [motivo]
-2. [decisão] — [motivo]
-
-Restrições: [lista compacta]
-
-Parado em: [ponto exato — 1 frase cirúrgica]
-
-Próxima ação: [instrução imperativa — 1 frase]
-
-Ref. completa: [nome-do-arquivo.md]
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-```
-
-**Quando usar cada formato:**
-
-| Situação | Formato |
-|---|---|
-| Conversa técnica com código e muitas decisões | Completo |
-| Conversa jurídica com peças, prazos e teses | Completo (sempre) |
-| Planejamento, brainstorm, estratégia | Compacto |
-| Retomada rápida com poucas pendências | Compacto |
-| Evacuação automática por degradação | Completo (sempre) |
-
----
-
-## MECANISMO 4 — Perfis de Conversa
-
-Claude detecta o perfil automaticamente na ativação.
-Forçar manualmente: `"perfil jurídico"` · `"perfil técnico"` · `"perfil estratégico"` · `"perfil criativo"` · `"perfil médico"` · `"perfil educacional"` · `"perfil investigativo"`
-
----
-
-### Perfil Técnico / Código
-**Quando:** há linguagem, framework, banco, API, código, arquitetura de software.
-**Prioriza:** Stack, Código e Artefatos, Decisões arquiteturais, Snippets completos, Estrutura de pastas.
-**Alerta especial:** código parcial ou incompleto no momento da evacuação — nunca truncar.
-
----
-
-### Perfil Jurídico
-**Quando:** menção a processo, petição, vara, tribunal, réu, autor, prazo processual, legislação, jurisprudência, inventário, contrato, defesa, recurso, habilitação de crédito, execução, liminar, tutela.
-**Prioriza:**
-- Identificação completa do processo (número, vara, tribunal, instância, fase)
-- Partes envolvidas (autor, réu, terceiros, intervenientes, espólio, herdeiros)
-- Teses jurídicas fixadas e fundamentos legais (artigos, leis, súmulas, jurisprudência citada)
-- Peças já elaboradas e seu status (rascunho, finalizada, protocolada)
-- Prazos processuais — **SEMPRE marcados em 🔴 vermelho, independente do modo**
-- Provas e documentos mapeados (o que existe, o que falta, o que foi juntado)
-- Estratégia processual definida (defensiva, ofensiva, negocial)
-- Decisões do juízo e recursos cabíveis
-- Pedidos formulados e seu status
-
-**Alerta especial — prazos:**
-Qualquer prazo processual identificado deve ser extraído e destacado em 🔴 no relatório, mesmo em modo silencioso. Perda de prazo é irreparável.
-
-**Alerta especial — confusão de processos:**
-Se a conversa envolver múltiplos processos, Claude deve manter um mapa de processos ativo e verificar, a cada resposta, se está referenciando o processo correto.
-
-**Gatilhos de evacuação adicionais:**
-- Claude menciona número de processo errado
-- Claude confunde partes entre processos distintos
-- Claude sugere fundamento legal já descartado
-- Claude elabora peça sem mencionar o processo ao qual ela pertence
-
-**Reduz:** jargão técnico de TI, stack tecnológica (omitir se irrelevante).
-
----
-
-### Perfil Estratégico / Planejamento
-**Quando:** foco em negócio, roadmap, priorização, OKRs, tomada de decisão executiva.
-**Prioriza:** Decisões cronológicas, Alternativas rejeitadas com justificativa, Próximos passos, Stakeholders, Prazos e marcos.
-**Reduz:** Stack técnica (omitir se irrelevante).
-
----
-
-### Perfil Criativo
-**Quando:** escrita, design, conteúdo, narrativa, roteiro, campanha, branding.
-**Prioriza:** Diretrizes criativas, Tom e voz, Restrições de estilo, Estado da obra, Fio narrativo em construção.
-**Reduz:** Stack técnica, Requisitos funcionais.
-
----
-
-### Perfil Médico / Científico
-**Quando:** discussão clínica, diagnóstico, protocolo terapêutico, pesquisa científica, metodologia, análise de dados, revisão de literatura.
-**Prioriza:**
-- Hipótese diagnóstica ou científica central
-- Protocolo e metodologia definidos
-- Medicamentos, doses e contraindicações mencionados
-- Resultados e achados até o momento
-- Limitações metodológicas identificadas
-- Referências bibliográficas citadas
-- Próximos passos do protocolo ou investigação
-
-**Alerta especial:** contraindicações e doses — marcadas em 🔴, nunca omitidas.
-**Reduz:** jargão jurídico, stack técnica de TI.
-
----
-
-### Perfil Educacional / Didático
-**Quando:** ensino, tutoria, elaboração de material didático, plano de aula, trilha de aprendizado, explicação progressiva de conceitos.
-**Prioriza:**
-- Nível e perfil do aprendiz (iniciante, intermediário, avançado; área de formação)
-- Conteúdo já ensinado e assimilado
-- Dificuldades e dúvidas identificadas
-- Analogias e exemplos já utilizados (não repetir)
-- Próxima etapa didática e pré-requisitos
-- Material já produzido (exercícios, resumos, questões)
-- Objetivos de aprendizagem declarados
-
-**Reduz:** terminologia excessivamente técnica não introduzida ainda, código não relacionado ao ensino.
-
----
-
-### Perfil Investigativo / Pesquisa
-**Quando:** pesquisa documental, jornalismo investigativo, due diligence, inteligência competitiva, análise de fontes, mapeamento de evidências.
-**Prioriza:**
-- Hipótese ou pergunta investigativa central
-- Fontes consultadas e seu status (confirmada, pendente, descartada, contraditória)
-- Achados confirmados vs. suspeitos
-- Contradições e inconsistências identificadas
-- Lacunas de informação ainda abertas
-- Linha do tempo de eventos mapeada
-- Conexões entre pessoas, entidades ou fatos
-
-**Alerta especial:** fontes contraditórias — sempre destacadas; nunca omitir divergência.
-**Reduz:** stack técnica, terminologia clínica.
-
----
-
-### Perfil Geral
-Fallback automático quando nenhum perfil específico é detectado.
-Usa o template completo sem otimizações de perfil.
-
-Ver templates por perfil em `references/transfer-report-template.md`.
-
----
-
-## MECANISMO 5 — Modo Silencioso
-
-Documentado acima na seção MODO SILENCIOSO.
-Ativar quando o usuário não quer interrupções no fluxo de trabalho.
-
-**Exceção obrigatória no Perfil Jurídico:** prazos processuais são sempre reportados, mesmo em modo silencioso.
-
----
-
-## MECANISMO 6 — Integração com Memória do Claude
-
-Durante a evacuação, Claude identifica e salva nas **memórias persistentes**
-preferências recorrentes do usuário úteis em futuras conversas.
-
-### O que salvar na memória
-
-**Sempre que detectado:**
-- Área de atuação profissional (ex: advogado, médico, dev, professor)
-- Stack tecnológica preferida
-- Linguagem de programação principal
-- Estilo de código (comentado, funcional, sem classes, etc.)
-- Idioma preferido para código e comentários
-- Formato de resposta preferido (conciso, detalhado, com exemplos)
-- Restrições recorrentes ("nunca usa X", "sempre prefere Y")
-- Perfil de conversa predominante (Jurídico, Técnico, etc.)
-
-**Nunca salvar:**
-- Decisões específicas de um projeto ou processo (ficam só no relatório)
-- Dados sensíveis (credenciais, dados de partes, informações pessoais de clientes)
-- Números de processos, nomes de partes ou valores em litígio
-
-### Como salvar
-
-Usar `memory_user_edits` com `command: "add"` para cada preferência,
-formulada de forma compacta:
-
-```
-"Usuário é advogado, atua em direito cível, criminal e sucessões"
-"Usuário prefere perfil Jurídico no Context Guardian"
-"Usuário prefere Python com type hints e sem frameworks pesados"
-"Usuário escreve código em inglês mas conversa em PT-BR"
-"Usuário prefere respostas concisas sem markdown excessivo"
-```
-
-### Informar o usuário após salvar
-
-```
-🧠 **Preferências salvas na memória do Claude:**
-- [preferência 1]
-- [preferência 2]
-Estarão disponíveis automaticamente em futuras conversas.
-```
+`modo normal` · `cg verbose` · `desativar silencioso`
 
 ---
 
 ## MODO EVACUAÇÃO
 
-### Gatilhos
+### Gatilhos confiáveis (funcionam mesmo com contexto degradado)
 
-**Automáticos:** falha na checklist · sinal semântico recorrente · 50+ turnos sem checkpoint
+**Por sinal do usuário (binários — alta confiabilidade):**
+`você esqueceu` · `já falei isso` · `compile tudo` · `gerar relatório`
+`nova conversa` · `contexto perdido` · `transferir conversa` · `/evacuar`
+`o que discutimos` · `resuma tudo` · `checkpoint agora`
 
-**Por sinal do usuário:**
-`você esqueceu` · `já falei isso` · `compile tudo` · `gerar relatório` · `nova conversa`
-`contexto perdido` · `transferir conversa` · `/evacuar` · `o que discutimos` · `resuma tudo`
+**Por detecção interna (quando Claude percebe claramente):**
+- Está incerto sobre fato já estabelecido nesta conversa
+- Repetiu pergunta ou conteúdo já fornecido
+- Contradiz decisão anterior documentada
 
-**Jurídico — gatilhos adicionais:**
-`prazo` · `vencimento` · `protocolar` · `confundiu os processos` · `processo errado`
+**Por contagem:**
+- 50+ turnos sem checkpoint confirmado pelo usuário
 
-### Passo 1 — Anúncio
+### Passo 1 — Anúncio Imediato
 
 ```
 ⚠️ **Context Guardian — Modo Evacuação**
-Motivo: [sinal detectado]  |  Perfil: [perfil ativo]
+Motivo: [descrição precisa do gatilho]
+Perfil: [Técnico / Estratégico / Criativo / Geral]
 
-Gerando relatório + Prompts de Retomada. Não farei mais nada até concluir.
+Gerando relatório .md + Prompts de Retomada.
+Não farei mais nada até concluir.
 ```
 
 ### Passo 2 — Varredura Exaustiva (turno 1 → atual)
 
-Extrair por perfil:
-- **A** Identidade: nome/caso, objetivo exato, contexto do usuário, perfil
-- **B** Fatos Técnicos *(Técnico/Geral)*: linguagens, frameworks, infra, configs
-- **C** Fatos Jurídicos *(Jurídico)*: processo(s), partes, vara, teses, prazos, peças, provas
-- **D** Decisões Cronológicas: [turno] decisão — justificativa — alternativas rejeitadas
-- **E** Código e Artefatos *(Técnico)*: estrutura de pastas, snippets completos, código incompleto
-- **F** Diretrizes Criativas *(Criativo)*: tom, voz, restrições, estado da obra
-- **G** Protocolo/Metodologia *(Médico/Científico)*: hipótese, protocolo, achados, contraindicações
-- **H** Estado Didático *(Educacional)*: nível do aprendiz, conteúdo ensinado, próxima etapa
-- **I** Mapa de Fontes *(Investigativo)*: fontes, achados, contradições, lacunas
-- **J** Problemas e Tentativas: problema → falhas (com motivo) → solução adotada
-- **K** Requisitos e Restrições: funcionais, técnicos, preferências, constraints
-- **L** Estado Atual: o que estava sendo feito, ponto exato de parada, próximos passos
-- **M** Referências: URLs, documentos, fontes, jurisprudência citada
+Percorrer toda a conversa extraindo por perfil:
+
+- **A — Identidade:** nome do projeto, objetivo exato, contexto do usuário, perfil
+- **B — Fatos Técnicos** *(Técnico/Geral):* linguagens+versões, frameworks, infra, configs,
+  variáveis de ambiente (estrutura, sem valores sensíveis)
+- **C — Decisões Cronológicas:** [turno aprox.] decisão — justificativa — alternativas rejeitadas
+- **D — Código e Artefatos** *(Técnico):* estrutura de pastas, snippets completos,
+  código incompleto (NUNCA truncar — incluir exatamente onde parou)
+- **E — Diretrizes Criativas** *(Criativo):* tom, voz, restrições de estilo, estado da obra
+- **F — Problemas e Tentativas:** problema → o que falhou e por quê → solução adotada
+- **G — Requisitos e Restrições:** funcionais, técnicos, preferências do usuário, constraints
+- **H — Estado Atual:** o que estava sendo feito, ponto exato de parada, próximos passos
+- **I — Referências:** URLs, documentos, fontes citadas
 
 ### Passo 3 — Gerar Arquivo .md
 
-`create_file` → `/mnt/user-data/outputs/context-guardian-[slug]-turno-[N].md`
+**OBRIGATÓRIO:** `create_file` → `/mnt/user-data/outputs/context-guardian-[slug]-turno-[N].md`
+
 Template por perfil em `references/transfer-report-template.md`.
+
 Após criar: `present_files`.
 
 ### Passo 4 — Gerar Prompts de Retomada no Chat
 
-**Prompt Completo** — estrutura:
+Gerar os dois formatos em sequência.
+
+**Prompt Completo:**
 
 ```
 ════════════════════════════════════════════════════════════════
-PROMPT DE RETOMADA COMPLETO — CONTEXT GUARDIAN
+PROMPT DE RETOMADA COMPLETO — CONTEXT GUARDIAN v1.3
 ════════════════════════════════════════════════════════════════
-Você está assumindo uma conversa transferida por limite de contexto.
-Leia tudo antes de responder.
+Você está assumindo uma conversa transferida. Leia tudo antes de responder.
 
 ## IDENTIDADE
-Projeto/Caso: [nome] | Objetivo: [1 frase] | Perfil: [tipo]
-Eu sou: [papel/contexto do usuário]
+Projeto: [nome] | Objetivo: [1 frase] | Perfil: [tipo]
+Usuário: [papel/contexto]
 
 ## ESTADO NO MOMENTO DA SUSPENSÃO
 Estávamos em: [atividade exata]
-Ponto de parada: [última coisa dita/escrita]
-Status: [parcialmente escrito / decisão tomada sem implementação / etc.]
+Ponto de parada: [última coisa dita/escrita — cirúrgico]
+Status: [ex: código 60% escrito / decisão tomada sem implementação]
 
 ## DECISÕES TOMADAS — NÃO QUESTIONAR
 1. [decisão] — [por quê]
@@ -458,32 +285,64 @@ Status: [parcialmente escrito / decisão tomada sem implementação / etc.]
 ## RESTRIÇÕES ABSOLUTAS
 - ❌ [o que não usar/fazer] — [motivo]
 
-## CONTEXTO ESPECÍFICO DO PERFIL
-[Técnico: stack | Jurídico: processo+partes+teses+prazos | Médico: protocolo+contraindicações | etc.]
+## STACK E AMBIENTE
+[linguagem+versão · framework · banco · infra]
 
 ## HISTÓRICO
-[parágrafo denso: o que foi construído/elaborado, problemas resolvidos, tentativas fracassadas]
+[parágrafo denso: o que foi construído, problemas resolvidos, tentativas fracassadas]
 
-## ARTEFATOS RELEVANTES
-[código incompleto / peças em rascunho / material didático em construção]
+## CÓDIGO RELEVANTE
+[snippets críticos — especialmente código incompleto no momento da suspensão]
 
 ## PENDÊNCIAS
 - ❓ [problema/questão em aberto]
-- 🔴 [prazo crítico, se perfil Jurídico]
 
 ## PRIMEIRA AÇÃO
-[instrução imperativa sem ambiguidade]
+[instrução imperativa sem ambiguidade — o que fazer agora]
 
 ## REFERÊNCIA COMPLETA
-Arquivo: [nome-do-arquivo.md] — faça upload junto com este prompt.
+Arquivo: [nome-do-arquivo.md]
+Faça upload junto com este prompt para contexto completo.
 ════════════════════════════════════════════════════════════════
 ```
 
-**Prompt Compacto** — formato descrito no Mecanismo 3.
+**Prompt Compacto (~150 palavras):**
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+RETOMADA RÁPIDA — [NOME DO PROJETO]
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Projeto: [nome] | Objetivo: [1 frase]
+Stack: [lista compacta]
+Fase: [onde estamos]
+
+Decisões fixas:
+1. [decisão] — [motivo]
+2. [decisão] — [motivo]
+
+Restrições: [lista compacta]
+
+Parado em: [ponto exato — 1 frase]
+
+Próxima ação: [instrução imperativa — 1 frase]
+
+Ref: [nome-do-arquivo.md]
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
 
 ### Passo 5 — Salvar Preferências na Memória
 
-Executar Mecanismo 6.
+Identificar e salvar via `memory_user_edits` preferências **recorrentes** do usuário:
+stack preferida, linguagem principal, estilo de código, idioma, formato de resposta,
+contexto profissional. Nunca salvar dados de projeto específico ou dados sensíveis.
+
+Informar o que foi salvo:
+```
+🧠 **Preferências salvas na memória do Claude:**
+- [preferência 1]
+- [preferência 2]
+Disponíveis automaticamente em futuras conversas.
+```
 
 ### Passo 6 — Instruções ao Usuário
 
@@ -492,44 +351,63 @@ Executar Mecanismo 6.
 ✅ EVACUAÇÃO CONCLUÍDA
 
   📄 Arquivo .md — relatório completo (baixe acima)
-  📋 Prompt Completo — para conversas técnicas, jurídicas e longas
-  📋 Prompt Compacto — para retomadas rápidas
-  🧠 Preferências salvas na memória do Claude
+  📋 Prompt Completo — conversas técnicas e longas
+  📋 Prompt Compacto — retomadas rápidas
+  🧠 Preferências salvas na memória
 
 COMO CONTINUAR:
 
 Opção A — Upload + Prompt Completo:
-  1. Baixe o .md  2. Nova conversa  3. Upload + cole o Prompt Completo
+  1. Baixe o .md
+  2. Nova conversa no Claude
+  3. Upload do .md + cole o Prompt Completo
 
 Opção B — Retomada rápida:
-  1. Nova conversa  2. Cole o Prompt Compacto
+  1. Nova conversa no Claude
+  2. Cole o Prompt Compacto
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
+
+---
+
+## Perfis de Conversa
+
+Claude detecta automaticamente na ativação.
+Forçar: `"perfil técnico"` · `"perfil estratégico"` · `"perfil criativo"`
+
+| Perfil | Quando | Prioriza | Reduz |
+|--------|--------|----------|-------|
+| **Técnico** | Linguagem, framework, código | Stack, artefatos, snippets | — |
+| **Estratégico** | Negócio, roadmap, OKRs | Decisões, alternativas rejeitadas | Stack técnica |
+| **Criativo** | Escrita, design, narrativa | Tom, voz, restrições de estilo | Stack, requisitos |
+| **Geral** | Fallback | Template completo | — |
+
+Templates completos por perfil em `references/transfer-report-template.md`.
 
 ---
 
 ## Regras Absolutas
 
 - ❌ NUNCA omitir informação por parecer pequena ou óbvia
-- ❌ NUNCA truncar código parcial ou peça jurídica em rascunho
+- ❌ NUNCA truncar código parcial — incluir exatamente onde parou
 - ❌ NUNCA gerar apenas no chat — sempre arquivo .md
-- ❌ NUNCA omitir prazo processual, mesmo em modo silencioso
-- ❌ NUNCA salvar dados pessoais de clientes, partes ou pacientes na memória
+- ❌ NUNCA prometer detecção automática de fase como garantia
 - ✅ Completude > brevidade no relatório .md
-- ✅ Marcar 🔴 itens que o novo Claude deve saber imediatamente
-- ✅ Perfil prioriza seções — nunca omite completamente
-- ✅ Salvar na memória apenas preferências recorrentes do usuário
-- ✅ Em conversas com múltiplos processos: manter mapa de processos separado
+- ✅ Marcar 🔴 itens críticos para o novo Claude
+- ✅ Checkpoints manuais periódicos são a camada primária — comunicar isso ao usuário
+- ✅ Salvar na memória apenas preferências recorrentes
 
 ---
 
 ## Automação Total — Ambientes Externos
 
-| Ambiente | Automação |
-|---|---|
-| **Claude.ai** | Semi-automático — 3 passos manuais |
-| **Claude Code** | ✅ Total — subagentes nativos |
-| **API Python/Node** | ✅ Total — orquestrador monitora tokens |
-| **n8n** | ✅ Total — fluxo visual sem código |
+No Claude.ai, o último passo é sempre manual. Em outros ambientes:
 
-Implementações completas em `references/automation-orchestrator.md`.
+| Ambiente | Automação | Nota |
+|---|---|---|
+| **Claude.ai** | Semi-automático | Limitação de plataforma — sem acesso a tokens |
+| **Claude Code** | ✅ Total | Subagentes nativos |
+| **API Python/Node** | ✅ Total | Acesso a `usage.input_tokens` — evacuação real pré-compactação |
+| **n8n** | ✅ Total | Fluxo visual sem código |
+
+Implementações em `references/automation-orchestrator.md`.

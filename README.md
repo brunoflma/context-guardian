@@ -1,6 +1,6 @@
 # 🛡️ Context Guardian
 
-Habilidade para Claude.ai que monitora e protege o contexto em conversas longas — detectando degradação, compilando um relatório `.md` completo e gerando Prompts de Retomada para continuidade sem perda de informação.
+Skill para Claude.ai que monitora e protege o contexto em conversas longas — detectando degradação, compilando um relatório `.md` completo e gerando Prompts de Retomada para continuidade sem perda de informação.
 
 ---
 
@@ -22,7 +22,7 @@ O Context Guardian opera em três modos e seis mecanismos de proteção:
 1. Checkpoint por virada de fase (não só por turnos)
 2. Detecção semântica de degradação gradual
 3. Prompt de Retomada em dois formatos (completo e compacto)
-4. Perfis de conversa especializados (Técnico, Jurídico, Estratégico, Criativo, Médico/Científico, Educacional, Investigativo, Geral)
+4. Perfis de conversa especializados (Técnico, Estratégico, Criativo, Geral)
 5. Modo silencioso sem ruído no fluxo de trabalho
 6. Integração com a memória do Claude para preferências recorrentes
 
@@ -30,28 +30,10 @@ O Context Guardian opera em três modos e seis mecanismos de proteção:
 
 ## Instalação
 
-### Pré-requisito obrigatório
-
-Antes de instalar, certifique-se de que **Code Execution** está ativado:
-
-> **Configurações → Capacidades → ativar "Execução de código e criação de arquivos"**
-
-Sem essa opção ativada, a Habilidade não carrega, mesmo que o upload seja feito corretamente.
-
-### Passos
-
 1. Acesse a [última release](https://github.com/brunoflma/context-guardian/releases/latest) e baixe o arquivo `context-guardian-vX.X.X.zip`
-2. No Claude.ai: **avatar → Personalizar → Habilidades → Fazer upload de uma habilidade (Botão +)**
-3. Faça upload do arquivo `.zip` baixado (não é necessário extrair)
-4. Ative o toggle ao lado da Habilidade na lista
-
-> **Atenção:** o `.zip` de instalação é o arquivo `context-guardian-vX.X.X.zip` disponível nos assets da release — não o arquivo do repositório baixado via "Download ZIP" do GitHub.
-
-### ⚠️ Limitação importante: conversas em andamento
-
-A Habilidade é injetada no contexto **apenas na inicialização de uma conversa nova**. Em conversas já em andamento, o Claude não reconhece a Habilidade mesmo que ela esteja instalada.
-
-**Workaround para conversas em andamento:** cole o conteúdo do `SKILL.md` diretamente no chat como mensagem e peça ao Claude para ativar o modo desejado.
+2. Extraia o zip
+3. No Claude.ai: **avatar → Configurações → Skills → Instalar Skill**
+4. Selecione a pasta `context-guardian` extraída
 
 ---
 
@@ -85,15 +67,13 @@ O Modo Evacuação dispara automaticamente quando Claude detecta degradação �
 
 ## O que a evacuação gera
 
-**Arquivo `.md`** com relatório adaptado ao perfil da conversa, cobrindo decisões cronológicas, artefatos produzidos, tentativas fracassadas e estado exato no momento da evacuação.
+**Arquivo `.md`** com relatório adaptado ao perfil da conversa (Técnico, Estratégico, Criativo ou Geral), cobrindo decisões cronológicas, código produzido, tentativas fracassadas e estado exato no momento da evacuação.
 
-**Perfis suportados:** Técnico · Jurídico · Estratégico · Criativo · Médico/Científico · Educacional · Investigativo · Geral
-
-**Prompt Completo** — todas as seções, para conversas técnicas, jurídicas e longas.
+**Prompt Completo** — todas as seções, para conversas técnicas e longas.
 
 **Prompt Compacto** — ~150 palavras, para retomadas rápidas.
 
-**Memória do Claude** — preferências recorrentes (área de atuação, estilo de resposta, idioma, formato) salvas automaticamente para futuras conversas.
+**Memória do Claude** — preferências recorrentes (stack, estilo de código, idioma, formato de resposta) salvas automaticamente para futuras conversas.
 
 ---
 
@@ -101,7 +81,7 @@ O Modo Evacuação dispara automaticamente quando Claude detecta degradação �
 
 | Ambiente | Automação |
 |---|---|
-| Claude.ai | Semi-automático — Habilidade gera tudo, usuário abre nova conversa |
+| Claude.ai | Semi-automático — skill gera tudo, usuário abre nova conversa |
 | Python / Node.js | ✅ Total — orquestrador monitora tokens e transfere |
 | Claude Code | ✅ Total — subagentes nativos, invisível ao usuário |
 | n8n | ✅ Total — fluxo visual sem código |
