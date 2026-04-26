@@ -1,0 +1,10 @@
+.github_config
+github.txt
+secrets.txt
+*.zip
+__pycache__/
+*.pyc
+.env
+.DS_Store
+Thumbs.db
+release.py

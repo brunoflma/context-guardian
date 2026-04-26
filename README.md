@@ -77,6 +77,25 @@ O Modo Evacuação dispara automaticamente quando Claude detecta degradação �
 
 ---
 
+## Integração com a skill Status
+
+O Context Guardian funciona de forma independente. Com a skill [Status](https://github.com/brunoflma/status) instalada junto, as duas trabalham em camadas:
+
+```
+Status       → visibilidade: quanto contexto resta e com que confiança Claude opera
+Guardian     → ação: checkpoints periódicos e evacuação com relatório .md completo
+```
+
+**O que muda com as duas ativas:**
+
+- O card de Status substitui o lembrete periódico do Sentinela quando caem no mesmo turno — sem duplicação no chat
+- Quando a recomendação do Status chega em "Transferência Imediata", o Guardian dispara a evacuação automaticamente, sem precisar de confirmação
+- Os campos 📋 Técnico e 🎯 Conteúdo do card de Status alimentam os fatos-âncora do checkpoint — o Guardian não precisa reconstruir o estado do zero
+
+Em sessões longas e críticas, instalar as duas é o setup mais seguro.
+
+---
+
 ## Automação total (fora do Claude.ai)
 
 | Ambiente | Automação |

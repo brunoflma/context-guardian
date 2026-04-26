@@ -1,3 +1,10 @@
+## v1.4.0
+- Card visual HTML para confirmação de ativação e lembretes de checkpoint: mesmo formato, ícones e estrutura da skill Status (header com pills, barra de checkpoint, rows com ícones SVG flat 16×16 stroke-only, barra de recomendação semântica)
+- Integração com a skill Status: description do SKILL.md atualizado com bloco de integração — card de Status substitui lembrete do Sentinela, recomendação "Transferência Imediata" aciona Evacuação automaticamente, campos Técnico e Conteúdo alimentam fatos-âncora do checkpoint
+- Nota explícita na seção de Lembrete de Checkpoint para não duplicar quando Status está ativo
+- Gatilho por Status adicionado ao Modo Evacuação com comportamento documentado
+- README atualizado com seção "Integração com a skill Status"
+
 ## v1.3.0
 - Correção arquitetônica: checkpoints manuais periódicos promovidos a camada primária de proteção — a skill agora comunica isso claramente ao usuário na ativação
 - Intervalo de checkpoint definido pelo usuário: Claude pergunta o intervalo na ativação ("a cada quantos turnos?") em vez de usar 20 fixos; recomendado 10 para sessões técnicas densas

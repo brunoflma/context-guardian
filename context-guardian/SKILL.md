@@ -5,33 +5,35 @@ description: |
 
   SENTINELA — ativar com: "ativar context guardian", "cg on", "/cg",
   "ativar sentinela", "iniciar monitoramento", "proteção de contexto"
-  Na ativação: perguntar intervalo de checkpoint, registrar fatos-âncora,
-  emitir lembrete a cada N turnos. Checkpoint manual é a camada primária.
+  Perguntar intervalo na ativação. Emitir lembrete a cada N turnos.
 
   SILENCIOSO — ativar com: "modo silencioso", "cg silent"
-  Suprime lembretes — Claude fala só ao detectar degradação ou a pedido.
 
   EVACUAÇÃO — ativar IMEDIATAMENTE quando:
-  - Claude incerto sobre algo já estabelecido nesta conversa
-  - Claude repetiu pergunta ou conteúdo já fornecido
+  - Claude incerto sobre algo estabelecido nesta conversa
+  - Claude repetiu pergunta ou conteúdo fornecido
   - Claude contradiz decisão anterior
-  - Usuário diz: "você esqueceu", "já falei", "compile tudo", "gerar relatório",
-    "nova conversa", "contexto perdido", "transferir conversa", "/evacuar"
+  - Usuário diz: "você esqueceu", "compile tudo", "nova conversa",
+    "/evacuar", "resuma tudo", "checkpoint"
   - 50 turnos sem checkpoint confirmado
-  - "o que discutimos", "resuma tudo", "checkpoint agora"
 
-  Evacuação: gerar .md + Prompts de Retomada via create_file + present_files.
-  NUNCA apenas texto no chat.
+  Gerar .md + Prompts de Retomada via create_file + present_files.
+  NUNCA só no chat.
+
+  INTEGRAÇÃO COM SKILL STATUS — quando as duas estão ativas:
+  - Card de Status substitui o lembrete do Sentinela no mesmo turno.
+  - "Transferência Imediata" aciona Evacuação automaticamente.
+  - Técnico e Conteúdo alimentam fatos-âncora do checkpoint.
 ---
 
-# Context Guardian v1.3 — Guia Completo
+# Context Guardian v1.4 — Guia Completo
 
 ---
 
 ## Limitações Honestas (ler antes de tudo)
 
 Esta seção existe para que o usuário saiba exatamente o que a skill consegue
-e o que não consegue — sem promessas que a arquitetura não cumpre.
+e o que não consegue.
 
 ### O que NÃO é possível no Claude.ai
 
@@ -49,7 +51,7 @@ Não é possível saber proativamente que a compactação está se aproximando.
 ### O que É garantido
 
 **Evacuação por gatilho textual:** quando o usuário escreve um dos comandos de
-evacuação, ou quando Claude percebe claramente que repetiu/contradiz algo, a evacuação
+evacuação, ou quando Claude percebe claramente que repetiu ou contradiz algo, a evacuação
 acontece de forma confiável — esses são gatilhos binários e simples.
 
 **Checkpoint por lembrete:** Claude emite lembretes de checkpoint em intervalos
@@ -63,8 +65,6 @@ explícita de turnos respondidos.
 
 **Checkpoints manuais periódicos são a camada primária de proteção.**
 A detecção automática de fase é secundária e não deve ser confiada isoladamente.
-O usuário que define um intervalo de checkpoint na ativação tem proteção real.
-O usuário que confia só na detecção automática pode ter falhas como as documentadas.
 
 ---
 
@@ -81,61 +81,64 @@ Frases aceitas:
 Ao ativar, Claude deve SEMPRE perguntar antes de confirmar:
 
 ```
-🛡️ **Context Guardian v1.3 — Ativando Sentinela**
+🛡️ Context Guardian — Ativando Sentinela
 
 A cada quantos turnos você quer receber o lembrete de checkpoint?
 Recomendado: 10 turnos para conversas técnicas densas, 15 para conversas mais leves.
 (Responda com um número, ex: "10")
 ```
 
-### Resposta de confirmação (após o usuário definir o intervalo)
+### Resposta de confirmação — card visual (após o usuário definir o intervalo)
 
-```
-🛡️ **Context Guardian v1.3 — Modo Sentinela ATIVO**
+Emitir como **card HTML via ferramenta de visualização**, no mesmo estilo da skill Status.
+O card tem quatro zonas:
 
-**Fatos-âncora registrados:**
-- Turno atual: [N]
-- Tópico: [descrição]
-- Objetivo: [objetivo declarado]
-- Decisões tomadas: [lista ou "nenhuma ainda"]
-- Perfil detectado: [Técnico / Estratégico / Criativo / Geral]
+**Zona 1 — Header:** label "Context Guardian" à esquerda + pills à direita:
+- `Turno N` — pill neutra com borda
+- badge de modo — verde (Sentinela) / cinza (Silencioso)
+- badge de perfil — neutro (Técnico / Estratégico / Criativo / Geral)
 
-**Protocolo ativo:**
-- ✅ Lembrete de checkpoint a cada [N] turnos (camada primária)
-- ✅ Evacuação por gatilho textual (confiável)
-- ✅ Evacuação ao detectar repetição ou contradição clara
-- ⚠️  Detecção automática de fase: melhor esforço, não garantida
-- ⚠️  Pré-compactação: não detectável — use o intervalo de checkpoint como proteção
+**Zona 2 — Barra de checkpoint:** label "Checkpoint" + barra de progresso (height 6px,
+border-radius 3px, cor `#639922`) mostrando progresso do turno atual até o próximo checkpoint.
+Exemplo: turno 3, intervalo 10 → próximo em 13 → barra vazia no início, vai preenchendo
+conforme os turnos avançam. Exibir texto `Turno [atual] → [próximo]` à direita.
 
-Próximo checkpoint: turno ~[N + intervalo definido]
+**Zona 3 — Rows de dados** com ícone SVG (16×16, stroke-only) + rótulo (cor terciária,
+min-width 72px) + valor (cor primária):
 
-Dica: se a conversa for crítica, use "checkpoint agora" a qualquer momento.
-```
+| Ícone SVG | Rótulo | Conteúdo |
+|---|---|---|
+| relógio (`circle + polyline`) | Intervalo | `a cada N turnos · próximo checkpoint: Turno X` |
+| usuário (`circle + path`) | Objetivo | objetivo declarado na ativação |
+| lista/clipboard (`rect + lines`) | Decisões | decisões registradas, ou `nenhuma ainda` |
+| escudo (`path`) | Protocolo | tags inline: `garantido` (verde) para checkpoint e evacuação por gatilho · `melhor esforço` (âmbar) para fase e pré-compactação |
+| triângulo alerta (`path + line + circle`) | Alertas | degradação detectada, ou `—` |
+
+**Zona 4 — Barra de recomendação** (cor semântica):
+
+| Estado | Cor | Label | Hint |
+|---|---|---|---|
+| Normal | Verde (`--color-background-success`) | Sentinela ativo | `Digite "checkpoint agora" a qualquer momento` |
+| Atenção | Âmbar (`--color-background-warning`) | Checkpoint pendente | `Digite "ok" para confirmar ou "evacuar"` |
+| Crítico | Vermelho (`--color-background-danger`) | Evacuação imediata | `Contexto comprometido` |
 
 ### Lembrete de Checkpoint (emitir a cada N turnos respondidos)
 
-Claude deve contar os turnos respondidos desde a ativação (ou desde o último
-checkpoint confirmado) e emitir ao atingir o intervalo:
+Emitir o mesmo card HTML com a barra de checkpoint na zona 2 mostrando que o intervalo
+foi atingido — barra completamente preenchida, recomendação no estado Atenção (âmbar):
+label **Checkpoint pendente** · hint `Digite "ok" para confirmar ou "evacuar"`.
 
-```
-⏰ **Checkpoint Context Guardian** — turno ~[N]
-
-É um bom momento para verificar o contexto.
-Digite "ok" para confirmar que está tudo bem, ou "evacuar" para gerar o relatório.
-```
+**Nota:** quando a skill Status está ativa, o card de Status no mesmo turno substitui
+este lembrete — não emitir os dois.
 
 Aguardar resposta do usuário:
 - `"ok"` / `"tudo bem"` / qualquer confirmação → registrar checkpoint, reiniciar contagem
 - `"evacuar"` / qualquer gatilho de evacuação → executar Modo Evacuação
-- Usuário ignora e continua → registrar como não confirmado, emitir próximo lembrete
-  normalmente (não bloquear o fluxo)
+- Usuário ignora e continua → registrar como não confirmado, emitir próximo lembrete normalmente
 
 ### Checkpoint Manual
 
-O usuário pode solicitar a qualquer momento:
-`"fazer checkpoint"` · `"verificar contexto"` · `"checkpoint agora"` · `"status"`
-
-Resposta do checkpoint manual:
+`"fazer checkpoint"` · `"verificar contexto"` · `"checkpoint agora"`
 
 ```
 🟢 **Checkpoint Context Guardian** (turno ~[N])
@@ -151,17 +154,12 @@ Contexto íntegro? Se sim, diga "ok". Se algo estiver errado, descreva.
 
 ### Detecção Automática de Fase (melhor esforço)
 
-Claude deve tentar reconhecer os eventos abaixo e fazer checkpoint quando detectar.
-**Esta detecção não é garantida em conversas densas — é complementar, não primária.**
-
 | Evento | Como reconhecer |
 |--------|----------------|
 | Conclusão explícita de módulo | Usuário diz "perfeito", "feito", "próxima parte" |
 | Decisão arquitetural grande | Escolha definitiva de tecnologia, padrão ou abordagem |
 | Mudança clara de assunto | Tópico muda sem relação com o anterior |
 | Acúmulo de 8+ decisões | Contar decisões desde último checkpoint |
-
-Quando detectar: executar checklist interna e emitir checkpoint ou evacuação.
 
 ### Checklist Interna (executar em todo checkpoint)
 
@@ -182,45 +180,36 @@ Quando detectar: executar checklist interna e emitir checkpoint ou evacuação.
 
 ## MODO SILENCIOSO
 
-### Ativação
-
 `modo silencioso` · `cg silent` · `sentinela silencioso`
 
-Pode ser ativado junto com o Sentinela ou durante a conversa.
-
-### Comportamento
-
 - Lembretes de checkpoint são **suprimidos**
-- Claude só fala em dois casos:
-  1. Detectou degradação clara → evacuação imediata
-  2. Usuário solicita checkpoint manualmente
+- Claude só fala ao detectar degradação clara ou quando solicitado
+- Desativar: `modo normal` · `cg verbose` · `desativar silencioso`
 
 **Atenção ao usuário:** no modo silencioso, a responsabilidade de solicitar
-checkpoints periódicos recai sobre você. Recomendado apenas para conversas
-onde interrupções seriam muito prejudiciais.
-
-### Desativar
-
-`modo normal` · `cg verbose` · `desativar silencioso`
+checkpoints periódicos recai sobre você.
 
 ---
 
 ## MODO EVACUAÇÃO
 
-### Gatilhos confiáveis (funcionam mesmo com contexto degradado)
+### Gatilhos confiáveis
 
-**Por sinal do usuário (binários — alta confiabilidade):**
+**Por sinal do usuário:**
 `você esqueceu` · `já falei isso` · `compile tudo` · `gerar relatório`
 `nova conversa` · `contexto perdido` · `transferir conversa` · `/evacuar`
 `o que discutimos` · `resuma tudo` · `checkpoint agora`
 
-**Por detecção interna (quando Claude percebe claramente):**
-- Está incerto sobre fato já estabelecido nesta conversa
-- Repetiu pergunta ou conteúdo já fornecido
-- Contradiz decisão anterior documentada
+**Por detecção interna:**
+- Incerteza sobre fato já estabelecido nesta conversa
+- Repetição de pergunta ou conteúdo já fornecido
+- Contradição com decisão anterior documentada
+
+**Por integração com a skill Status:**
+- Recomendação "Transferência Imediata" no card de Status → acionar evacuação imediatamente
 
 **Por contagem:**
-- 50+ turnos sem checkpoint confirmado pelo usuário
+- 50+ turnos sem checkpoint confirmado
 
 ### Passo 1 — Anúncio Imediato
 
@@ -235,14 +224,10 @@ Não farei mais nada até concluir.
 
 ### Passo 2 — Varredura Exaustiva (turno 1 → atual)
 
-Percorrer toda a conversa extraindo por perfil:
-
 - **A — Identidade:** nome do projeto, objetivo exato, contexto do usuário, perfil
-- **B — Fatos Técnicos** *(Técnico/Geral):* linguagens+versões, frameworks, infra, configs,
-  variáveis de ambiente (estrutura, sem valores sensíveis)
+- **B — Fatos Técnicos** *(Técnico/Geral):* linguagens+versões, frameworks, infra, configs
 - **C — Decisões Cronológicas:** [turno aprox.] decisão — justificativa — alternativas rejeitadas
-- **D — Código e Artefatos** *(Técnico):* estrutura de pastas, snippets completos,
-  código incompleto (NUNCA truncar — incluir exatamente onde parou)
+- **D — Código e Artefatos** *(Técnico):* estrutura de pastas, snippets completos, código incompleto (NUNCA truncar)
 - **E — Diretrizes Criativas** *(Criativo):* tom, voz, restrições de estilo, estado da obra
 - **F — Problemas e Tentativas:** problema → o que falhou e por quê → solução adotada
 - **G — Requisitos e Restrições:** funcionais, técnicos, preferências do usuário, constraints
@@ -259,13 +244,11 @@ Após criar: `present_files`.
 
 ### Passo 4 — Gerar Prompts de Retomada no Chat
 
-Gerar os dois formatos em sequência.
-
 **Prompt Completo:**
 
 ```
 ════════════════════════════════════════════════════════════════
-PROMPT DE RETOMADA COMPLETO — CONTEXT GUARDIAN v1.3
+PROMPT DE RETOMADA COMPLETO — CONTEXT GUARDIAN v1.4
 ════════════════════════════════════════════════════════════════
 Você está assumindo uma conversa transferida. Leia tudo antes de responder.
 
@@ -332,17 +315,8 @@ Ref: [nome-do-arquivo.md]
 
 ### Passo 5 — Salvar Preferências na Memória
 
-Identificar e salvar via `memory_user_edits` preferências **recorrentes** do usuário:
-stack preferida, linguagem principal, estilo de código, idioma, formato de resposta,
-contexto profissional. Nunca salvar dados de projeto específico ou dados sensíveis.
-
-Informar o que foi salvo:
-```
-🧠 **Preferências salvas na memória do Claude:**
-- [preferência 1]
-- [preferência 2]
-Disponíveis automaticamente em futuras conversas.
-```
+Via `memory_user_edits`: stack preferida, linguagem principal, estilo de código, idioma,
+formato de resposta, contexto profissional. Nunca salvar dados de projeto específico ou sensíveis.
 
 ### Passo 6 — Instruções ao Usuário
 
@@ -372,9 +346,6 @@ Opção B — Retomada rápida:
 
 ## Perfis de Conversa
 
-Claude detecta automaticamente na ativação.
-Forçar: `"perfil técnico"` · `"perfil estratégico"` · `"perfil criativo"`
-
 | Perfil | Quando | Prioriza | Reduz |
 |--------|--------|----------|-------|
 | **Técnico** | Linguagem, framework, código | Stack, artefatos, snippets | — |
@@ -382,7 +353,7 @@ Forçar: `"perfil técnico"` · `"perfil estratégico"` · `"perfil criativo"`
 | **Criativo** | Escrita, design, narrativa | Tom, voz, restrições de estilo | Stack, requisitos |
 | **Geral** | Fallback | Template completo | — |
 
-Templates completos por perfil em `references/transfer-report-template.md`.
+Templates completos em `references/transfer-report-template.md`.
 
 ---
 
@@ -400,8 +371,6 @@ Templates completos por perfil em `references/transfer-report-template.md`.
 ---
 
 ## Automação Total — Ambientes Externos
-
-No Claude.ai, o último passo é sempre manual. Em outros ambientes:
 
 | Ambiente | Automação | Nota |
 |---|---|---|
