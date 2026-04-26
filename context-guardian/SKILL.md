@@ -20,13 +20,13 @@ description: |
   Gerar .md + Prompts de Retomada via create_file + present_files.
   NUNCA só no chat.
 
-  INTEGRAÇÃO COM SKILL STATUS — quando as duas estão ativas:
-  - Card de Status substitui o lembrete do Sentinela no mesmo turno.
+  INTEGRAÇÃO COM SKILL context-status — quando as duas estão ativas:
+  - Card do context-status substitui o lembrete do Sentinela no mesmo turno.
   - "Transferência Imediata" aciona Evacuação automaticamente.
   - Técnico e Conteúdo alimentam fatos-âncora do checkpoint.
 ---
 
-# Context Guardian v1.4 — Guia Completo
+# Context Guardian v1.4.1 — Guia Completo
 
 ---
 
@@ -90,7 +90,7 @@ Recomendado: 10 turnos para conversas técnicas densas, 15 para conversas mais l
 
 ### Resposta de confirmação — card visual (após o usuário definir o intervalo)
 
-Emitir como **card HTML via ferramenta de visualização**, no mesmo estilo da skill Status.
+Emitir como **card HTML via ferramenta de visualização**, no mesmo estilo da skill context-status.
 O card tem quatro zonas:
 
 **Zona 1 — Header:** label "Context Guardian" à esquerda + pills à direita:
@@ -128,7 +128,7 @@ Emitir o mesmo card HTML com a barra de checkpoint na zona 2 mostrando que o int
 foi atingido — barra completamente preenchida, recomendação no estado Atenção (âmbar):
 label **Checkpoint pendente** · hint `Digite "ok" para confirmar ou "evacuar"`.
 
-**Nota:** quando a skill Status está ativa, o card de Status no mesmo turno substitui
+**Nota:** quando a skill context-status está ativa, o card do context-status no mesmo turno substitui
 este lembrete — não emitir os dois.
 
 Aguardar resposta do usuário:
@@ -205,8 +205,8 @@ checkpoints periódicos recai sobre você.
 - Repetição de pergunta ou conteúdo já fornecido
 - Contradição com decisão anterior documentada
 
-**Por integração com a skill Status:**
-- Recomendação "Transferência Imediata" no card de Status → acionar evacuação imediatamente
+**Por integração com a skill context-status:**
+- Recomendação "Transferência Imediata" no card do context-status → acionar evacuação imediatamente
 
 **Por contagem:**
 - 50+ turnos sem checkpoint confirmado
@@ -248,7 +248,7 @@ Após criar: `present_files`.
 
 ```
 ════════════════════════════════════════════════════════════════
-PROMPT DE RETOMADA COMPLETO — CONTEXT GUARDIAN v1.4
+PROMPT DE RETOMADA COMPLETO — CONTEXT GUARDIAN v1.4.1
 ════════════════════════════════════════════════════════════════
 Você está assumindo uma conversa transferida. Leia tudo antes de responder.
 
