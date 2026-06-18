@@ -708,7 +708,7 @@ REDIS_PORT=6379
 
 ```bash
 # .env
-ANTHROPIC_API_KEY=sk-ant-api03-...
+ANTHROPIC_API_KEY=<SUA_API_KEY_AQUI>
 
 # Opcional — sobrescrever defaults
 CG_MODEL=claude-sonnet-4-5
