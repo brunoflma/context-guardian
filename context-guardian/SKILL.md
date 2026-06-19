@@ -93,34 +93,43 @@ Recomendado: 10 turnos para conversas técnicas densas, 15 para conversas mais l
 Emitir como **card HTML via ferramenta de visualização**, no mesmo estilo da skill context-status.
 O card tem quatro zonas:
 
+### Acessibilidade Obrigatória para o Card
+
+Para garantir que o card seja acessível por leitores de tela:
+
+- O contêiner principal deve ter `role="region"` e `aria-label="Status do Context Guardian"`.
+- A barra de progresso deve usar `role="progressbar"`, `aria-valuenow="[turno-atual]"`, `aria-valuemin="0"` e `aria-valuemax="[intervalo]"`.
+- Todos os ícones SVG devem incluir `aria-hidden="true"` para serem ignorados, visto que têm rótulos visuais e semânticos.
+
 **Zona 1 — Header:** label "Context Guardian" à esquerda + pills à direita:
+
 - `Turno N` — pill neutra com borda
 - badge de modo — verde (Sentinela) / cinza (Silencioso)
 - badge de perfil — neutro (Técnico / Estratégico / Criativo / Geral)
 
 **Zona 2 — Barra de checkpoint:** label "Checkpoint" + barra de progresso (height 6px,
-border-radius 3px, cor `#639922`) mostrando progresso do turno atual até o próximo checkpoint.
+border-radius 3px, cor `#639922`, `role="progressbar"`) mostrando progresso do turno atual até o próximo checkpoint.
 Exemplo: turno 3, intervalo 10 → próximo em 13 → barra vazia no início, vai preenchendo
 conforme os turnos avançam. Exibir texto `Turno [atual] → [próximo]` à direita.
 
-**Zona 3 — Rows de dados** com ícone SVG (16×16, stroke-only) + rótulo (cor terciária,
+**Zona 3 — Rows de dados** com ícone SVG (16×16, stroke-only, `aria-hidden="true"`) + rótulo (cor terciária,
 min-width 72px) + valor (cor primária):
 
-| Ícone SVG | Rótulo | Conteúdo |
-|---|---|---|
-| relógio (`circle + polyline`) | Intervalo | `a cada N turnos · próximo checkpoint: Turno X` |
-| usuário (`circle + path`) | Objetivo | objetivo declarado na ativação |
-| lista/clipboard (`rect + lines`) | Decisões | decisões registradas, ou `nenhuma ainda` |
-| escudo (`path`) | Protocolo | tags inline: `garantido` (verde) para checkpoint e evacuação por gatilho · `melhor esforço` (âmbar) para fase e pré-compactação |
-| triângulo alerta (`path + line + circle`) | Alertas | degradação detectada, ou `—` |
+| Ícone SVG                                 | Rótulo    | Conteúdo                                                                                                                        |
+| ----------------------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| relógio (`circle + polyline`)             | Intervalo | `a cada N turnos · próximo checkpoint: Turno X`                                                                                 |
+| usuário (`circle + path`)                 | Objetivo  | objetivo declarado na ativação                                                                                                  |
+| lista/clipboard (`rect + lines`)          | Decisões  | decisões registradas, ou `nenhuma ainda`                                                                                        |
+| escudo (`path`)                           | Protocolo | tags inline: `garantido` (verde) para checkpoint e evacuação por gatilho · `melhor esforço` (âmbar) para fase e pré-compactação |
+| triângulo alerta (`path + line + circle`) | Alertas   | degradação detectada, ou `—`                                                                                                    |
 
 **Zona 4 — Barra de recomendação** (cor semântica):
 
-| Estado | Cor | Label | Hint |
-|---|---|---|---|
-| Normal | Verde (`--color-background-success`) | Sentinela ativo | `Digite "checkpoint agora" a qualquer momento` |
-| Atenção | Âmbar (`--color-background-warning`) | Checkpoint pendente | `Digite "ok" para confirmar ou "evacuar"` |
-| Crítico | Vermelho (`--color-background-danger`) | Evacuação imediata | `Contexto comprometido` |
+| Estado  | Cor                                    | Label               | Hint                                           |
+| ------- | -------------------------------------- | ------------------- | ---------------------------------------------- |
+| Normal  | Verde (`--color-background-success`)   | Sentinela ativo     | `Digite "checkpoint agora" a qualquer momento` |
+| Atenção | Âmbar (`--color-background-warning`)   | Checkpoint pendente | `Digite "ok" para confirmar ou "evacuar"`      |
+| Crítico | Vermelho (`--color-background-danger`) | Evacuação imediata  | `Contexto comprometido`                        |
 
 ### Lembrete de Checkpoint (emitir a cada N turnos respondidos)
 
@@ -132,6 +141,7 @@ label **Checkpoint pendente** · hint `Digite "ok" para confirmar ou "evacuar"`.
 este lembrete — não emitir os dois.
 
 Aguardar resposta do usuário:
+
 - `"ok"` / `"tudo bem"` / qualquer confirmação → registrar checkpoint, reiniciar contagem
 - `"evacuar"` / qualquer gatilho de evacuação → executar Modo Evacuação
 - Usuário ignora e continua → registrar como não confirmado, emitir próximo lembrete normalmente
@@ -154,12 +164,12 @@ Contexto íntegro? Se sim, diga "ok". Se algo estiver errado, descreva.
 
 ### Detecção Automática de Fase (melhor esforço)
 
-| Evento | Como reconhecer |
-|--------|----------------|
-| Conclusão explícita de módulo | Usuário diz "perfeito", "feito", "próxima parte" |
-| Decisão arquitetural grande | Escolha definitiva de tecnologia, padrão ou abordagem |
-| Mudança clara de assunto | Tópico muda sem relação com o anterior |
-| Acúmulo de 8+ decisões | Contar decisões desde último checkpoint |
+| Evento                        | Como reconhecer                                       |
+| ----------------------------- | ----------------------------------------------------- |
+| Conclusão explícita de módulo | Usuário diz "perfeito", "feito", "próxima parte"      |
+| Decisão arquitetural grande   | Escolha definitiva de tecnologia, padrão ou abordagem |
+| Mudança clara de assunto      | Tópico muda sem relação com o anterior                |
+| Acúmulo de 8+ decisões        | Contar decisões desde último checkpoint               |
 
 ### Checklist Interna (executar em todo checkpoint)
 
@@ -201,14 +211,17 @@ checkpoints periódicos recai sobre você.
 `o que discutimos` · `resuma tudo` · `checkpoint agora`
 
 **Por detecção interna:**
+
 - Incerteza sobre fato já estabelecido nesta conversa
 - Repetição de pergunta ou conteúdo já fornecido
 - Contradição com decisão anterior documentada
 
 **Por integração com a skill context-status:**
+
 - Recomendação "Transferência Imediata" no card do context-status → acionar evacuação imediatamente
 
 **Por contagem:**
+
 - 50+ turnos sem checkpoint confirmado
 
 ### Passo 1 — Anúncio Imediato
@@ -225,10 +238,10 @@ Não farei mais nada até concluir.
 ### Passo 2 — Varredura Exaustiva (turno 1 → atual)
 
 - **A — Identidade:** nome do projeto, objetivo exato, contexto do usuário, perfil
-- **B — Fatos Técnicos** *(Técnico/Geral):* linguagens+versões, frameworks, infra, configs
+- **B — Fatos Técnicos** _(Técnico/Geral):_ linguagens+versões, frameworks, infra, configs
 - **C — Decisões Cronológicas:** [turno aprox.] decisão — justificativa — alternativas rejeitadas
-- **D — Código e Artefatos** *(Técnico):* estrutura de pastas, snippets completos, código incompleto (NUNCA truncar)
-- **E — Diretrizes Criativas** *(Criativo):* tom, voz, restrições de estilo, estado da obra
+- **D — Código e Artefatos** _(Técnico):_ estrutura de pastas, snippets completos, código incompleto (NUNCA truncar)
+- **E — Diretrizes Criativas** _(Criativo):_ tom, voz, restrições de estilo, estado da obra
 - **F — Problemas e Tentativas:** problema → o que falhou e por quê → solução adotada
 - **G — Requisitos e Restrições:** funcionais, técnicos, preferências do usuário, constraints
 - **H — Estado Atual:** o que estava sendo feito, ponto exato de parada, próximos passos
@@ -346,12 +359,12 @@ Opção B — Retomada rápida:
 
 ## Perfis de Conversa
 
-| Perfil | Quando | Prioriza | Reduz |
-|--------|--------|----------|-------|
-| **Técnico** | Linguagem, framework, código | Stack, artefatos, snippets | — |
-| **Estratégico** | Negócio, roadmap, OKRs | Decisões, alternativas rejeitadas | Stack técnica |
-| **Criativo** | Escrita, design, narrativa | Tom, voz, restrições de estilo | Stack, requisitos |
-| **Geral** | Fallback | Template completo | — |
+| Perfil          | Quando                       | Prioriza                          | Reduz             |
+| --------------- | ---------------------------- | --------------------------------- | ----------------- |
+| **Técnico**     | Linguagem, framework, código | Stack, artefatos, snippets        | —                 |
+| **Estratégico** | Negócio, roadmap, OKRs       | Decisões, alternativas rejeitadas | Stack técnica     |
+| **Criativo**    | Escrita, design, narrativa   | Tom, voz, restrições de estilo    | Stack, requisitos |
+| **Geral**       | Fallback                     | Template completo                 | —                 |
 
 Templates completos em `references/transfer-report-template.md`.
 
@@ -372,11 +385,11 @@ Templates completos em `references/transfer-report-template.md`.
 
 ## Automação Total — Ambientes Externos
 
-| Ambiente | Automação | Nota |
-|---|---|---|
-| **Claude.ai** | Semi-automático | Limitação de plataforma — sem acesso a tokens |
-| **Claude Code** | ✅ Total | Subagentes nativos |
-| **API Python/Node** | ✅ Total | Acesso a `usage.input_tokens` — evacuação real pré-compactação |
-| **n8n** | ✅ Total | Fluxo visual sem código |
+| Ambiente            | Automação       | Nota                                                           |
+| ------------------- | --------------- | -------------------------------------------------------------- |
+| **Claude.ai**       | Semi-automático | Limitação de plataforma — sem acesso a tokens                  |
+| **Claude Code**     | ✅ Total        | Subagentes nativos                                             |
+| **API Python/Node** | ✅ Total        | Acesso a `usage.input_tokens` — evacuação real pré-compactação |
+| **n8n**             | ✅ Total        | Fluxo visual sem código                                        |
 
 Implementações em `references/automation-orchestrator.md`.
