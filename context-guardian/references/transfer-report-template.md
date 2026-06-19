@@ -7,8 +7,9 @@ Perfis: Técnico · Estratégico · Criativo · Geral
 
 ## TEMPLATE TÉCNICO / CÓDIGO
 
-```markdown
+````markdown
 # 📋 RELATÓRIO DE TRANSFERÊNCIA — [NOME DO PROJETO]
+
 **Context Guardian v1.1** | Turno: [N] | Perfil: Técnico
 Motivo: [degradação / conversa longa / pedido do usuário]
 
@@ -23,31 +24,34 @@ Motivo: [degradação / conversa longa / pedido do usuário]
 
 ## 🎯 IDENTIDADE
 
-| Campo | Valor |
-|-------|-------|
-| **Projeto** | [nome exato] |
-| **Objetivo** | [1-2 frases precisas] |
-| **Fase atual** | [ex: implementação do módulo de auth] |
-| **Usuário** | [papel/contexto, ex: dev solo, fintech B2B] |
+| Campo          | Valor                                       |
+| -------------- | ------------------------------------------- |
+| **Projeto**    | [nome exato]                                |
+| **Objetivo**   | [1-2 frases precisas]                       |
+| **Fase atual** | [ex: implementação do módulo de auth]       |
+| **Usuário**    | [papel/contexto, ex: dev solo, fintech B2B] |
 
 ---
 
 ## ⚙️ STACK TÉCNICA
 
-| Item | Versão / Detalhe |
-|------|-----------------|
-| Linguagem | [ex: Python 3.11] |
-| Framework | [ex: FastAPI 0.110] |
-| Banco | [ex: PostgreSQL 15, local] |
-| Infra | [ex: Docker, sem CI ainda] |
-| OS/Plataforma | [ex: Linux Ubuntu 22.04] |
+| Item          | Versão / Detalhe           |
+| ------------- | -------------------------- |
+| Linguagem     | [ex: Python 3.11]          |
+| Framework     | [ex: FastAPI 0.110]        |
+| Banco         | [ex: PostgreSQL 15, local] |
+| Infra         | [ex: Docker, sem CI ainda] |
+| OS/Plataforma | [ex: Linux Ubuntu 22.04]   |
 
 ### Variáveis de Ambiente (estrutura, sem valores)
+
 ```env
 [NOME_VAR]=[tipo/formato esperado]
 ```
+````
 
 ### Configurações Estabelecidas
+
 [configs relevantes — formatters, linters, padrões de projeto]
 
 ---
@@ -55,12 +59,14 @@ Motivo: [degradação / conversa longa / pedido do usuário]
 ## 📌 DECISÕES TOMADAS (cronológicas)
 
 ### Decisão 1 — [nome curto]
+
 - **O que:** [descrição completa]
 - **Por quê:** [justificativa]
 - **Descartado:** [alternativas rejeitadas e motivo]
 - **Turno aprox.:** [N]
 
 ### Decisão 2 — [nome curto]
+
 [repetir estrutura]
 
 ---
@@ -68,6 +74,7 @@ Motivo: [degradação / conversa longa / pedido do usuário]
 ## 💻 CÓDIGO E ARTEFATOS
 
 ### Estrutura de Arquivos
+
 ```
 [projeto]/
 ├── [pasta]/
@@ -77,13 +84,15 @@ Motivo: [degradação / conversa longa / pedido do usuário]
 ```
 
 ### Status dos Arquivos
-| Arquivo | Status | Descrição |
-|---------|--------|-----------|
+
+| Arquivo  | Status                                  | Descrição      |
+| -------- | --------------------------------------- | -------------- |
 | `[path]` | ✅ Completo / 🔄 Parcial / 📋 Planejado | [o que contém] |
 
 ### Código Crítico (incluir COMPLETO — nunca truncar)
 
 #### [nome do trecho]
+
 ```[linguagem]
 [código completo]
 ```
@@ -93,6 +102,7 @@ Motivo: [degradação / conversa longa / pedido do usuário]
 ## 🔍 PROBLEMAS E TENTATIVAS
 
 ### Problema 1 — [nome]
+
 - **Descrição:** [detalhes]
 - **Tentativas que falharam:** [abordagem] → [por que falhou]
 - **Solução adotada:** [o que funcionou]
@@ -103,18 +113,21 @@ Motivo: [degradação / conversa longa / pedido do usuário]
 ## 📋 REQUISITOS E RESTRIÇÕES
 
 ### Funcionais
+
 - [ ] [RF01] [o que deve fazer]
 
 ### Restrições Técnicas
+
 - ❌ **Proibido:** [o que não pode ser usado]
 - ⚠️ **Limitação:** [restrição de ambiente]
 
 ### Preferências do Usuário
-| Preferência | Valor |
-|-------------|-------|
-| Idioma do código | [PT-BR / EN] |
-| Estilo | [ex: comentado, funcional] |
-| Formato de resposta | [ex: conciso] |
+
+| Preferência         | Valor                      |
+| ------------------- | -------------------------- |
+| Idioma do código    | [PT-BR / EN]               |
+| Estilo              | [ex: comentado, funcional] |
+| Formato de resposta | [ex: conciso]              |
 
 ---
 
@@ -127,29 +140,35 @@ Motivo: [degradação / conversa longa / pedido do usuário]
 [última linha/ação/decisão — cirúrgico]
 
 ### Próximos Passos
+
 1. **[Passo imediato]** — [detalhes]
 2. **[Passo seguinte]** — [detalhes]
 
 ### Pendências
+
 - ❓ [questão em aberto]
 
 ---
 
 ## 🔗 REFERÊNCIAS
-| Recurso | URL / Local | Finalidade |
-|---------|-------------|------------|
-| [nome] | [url] | [para que serve] |
+
+| Recurso | URL / Local | Finalidade       |
+| ------- | ----------- | ---------------- |
+| [nome]  | [url]       | [para que serve] |
 
 ---
 
 ## 📋 PROMPTS DE RETOMADA
 
 ### Prompt Completo
+
 [inserir bloco completo — ver estrutura no SKILL.md Passo 4]
 
 ### Prompt Compacto
+
 [inserir bloco compacto — ver estrutura no SKILL.md Mecanismo 3]
-```
+
+````
 
 ---
 
@@ -217,7 +236,7 @@ Motivo: [degradação / conversa longa / pedido do usuário]
 
 ### Prompt Completo
 [inserir bloco completo]
-```
+````
 
 ---
 
@@ -225,11 +244,13 @@ Motivo: [degradação / conversa longa / pedido do usuário]
 
 ```markdown
 # 📋 RELATÓRIO DE TRANSFERÊNCIA — [NOME DA OBRA/PROJETO]
+
 **Context Guardian v1.1** | Turno: [N] | Perfil: Criativo
 
 ---
 
 ## 🔴 LEIA PRIMEIRO
+
 - 🔴 [diretriz criativa inegociável]
 - 🔴 [restrição de tom ou estilo]
 
@@ -237,26 +258,29 @@ Motivo: [degradação / conversa longa / pedido do usuário]
 
 ## 🎯 IDENTIDADE CRIATIVA
 
-| Campo | Valor |
-|-------|-------|
-| **Obra / Projeto** | [nome] |
-| **Formato** | [ex: artigo, roteiro, conto, campanha] |
-| **Objetivo** | [o que a obra deve causar/comunicar] |
-| **Público** | [para quem] |
-| **Fase** | [ex: rascunho do segundo ato] |
+| Campo              | Valor                                  |
+| ------------------ | -------------------------------------- |
+| **Obra / Projeto** | [nome]                                 |
+| **Formato**        | [ex: artigo, roteiro, conto, campanha] |
+| **Objetivo**       | [o que a obra deve causar/comunicar]   |
+| **Público**        | [para quem]                            |
+| **Fase**           | [ex: rascunho do segundo ato]          |
 
 ---
 
 ## 🎨 DIRETRIZES CRIATIVAS
 
 ### Tom e Voz
+
 [descrição detalhada do tom — formal/informal, irônico/direto, etc.]
 
 ### Restrições de Estilo
+
 - ❌ [o que NÃO usar — palavras, estruturas, referências proibidas]
 - ✅ [o que DEVE estar presente]
 
 ### Referências e Inspirações
+
 [obras, autores, exemplos que guiam o estilo]
 
 ---
@@ -264,12 +288,15 @@ Motivo: [degradação / conversa longa / pedido do usuário]
 ## 📄 ESTADO DA OBRA
 
 ### O que foi produzido
+
 [resumo do conteúdo criado até agora — preservar nuances]
 
 ### Ponto de parada
+
 [exatamente onde estava ao ser suspenso — parágrafo, cena, seção]
 
 ### Fio narrativo / Argumento em construção
+
 [o raciocínio ou narrativa que estava sendo desenvolvida]
 
 ---
@@ -277,9 +304,11 @@ Motivo: [degradação / conversa longa / pedido do usuário]
 ## 📋 PROMPTS DE RETOMADA
 
 ### Prompt Compacto (recomendado para este perfil)
+
 [inserir bloco compacto]
 
 ### Prompt Completo
+
 [inserir bloco completo]
 ```
 
@@ -289,16 +318,19 @@ Motivo: [degradação / conversa longa / pedido do usuário]
 
 ```markdown
 # 📋 RELATÓRIO DE TRANSFERÊNCIA
+
 **Context Guardian v1.1** | Turno: [N] | Perfil: Geral
 
 ---
 
 ## 🔴 LEIA PRIMEIRO
+
 - 🔴 [item crítico]
 
 ---
 
 ## 🎯 CONTEXTO
+
 - **Tópico:** [assunto da conversa]
 - **Objetivo:** [o que o usuário quer alcançar]
 - **Estado:** [onde chegamos]
@@ -306,12 +338,15 @@ Motivo: [degradação / conversa longa / pedido do usuário]
 ---
 
 ## 📌 DECISÕES E DEFINIÇÕES
+
 [lista cronológica de tudo que foi decidido ou definido]
 
 ## 🔍 PROBLEMAS RESOLVIDOS
+
 [o que foi resolvido e como]
 
 ## 📍 ESTADO ATUAL E PRÓXIMOS PASSOS
+
 [o que estava sendo feito e o que vem a seguir]
 
 ---
@@ -319,8 +354,10 @@ Motivo: [degradação / conversa longa / pedido do usuário]
 ## 📋 PROMPTS DE RETOMADA
 
 ### Prompt Compacto
+
 [inserir bloco compacto]
 
 ### Prompt Completo
+
 [inserir bloco completo]
 ```
