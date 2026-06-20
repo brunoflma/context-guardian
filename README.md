@@ -19,6 +19,7 @@ O Context Guardian opera em três modos e seis mecanismos de proteção:
 ```
 
 **Seis mecanismos integrados:**
+
 1. Checkpoint por virada de fase (não só por turnos)
 2. Detecção semântica de degradação gradual
 3. Prompt de Retomada em dois formatos (completo e compacto)
@@ -98,12 +99,12 @@ Em sessões longas e críticas, instalar as duas é o setup mais seguro.
 
 ## Automação total (fora do Claude.ai)
 
-| Ambiente | Automação |
-|---|---|
-| Claude.ai | Semi-automático — skill gera tudo, usuário abre nova conversa |
-| Python / Node.js | ✅ Total — orquestrador monitora tokens e transfere |
-| Claude Code | ✅ Total — subagentes nativos, invisível ao usuário |
-| n8n | ✅ Total — fluxo visual sem código |
+| Ambiente         | Automação                                                     |
+| ---------------- | ------------------------------------------------------------- |
+| Claude.ai        | Semi-automático — skill gera tudo, usuário abre nova conversa |
+| Python / Node.js | ✅ Total — orquestrador monitora tokens e transfere           |
+| Claude Code      | ✅ Total — subagentes nativos, invisível ao usuário           |
+| n8n              | ✅ Total — fluxo visual sem código                            |
 
 ---
 
