@@ -1,0 +1,3 @@
+## 2026-06-21 - O(1) Exact Token Tracking via API Usage
+**Learning:** O(n) message history traversal for heuristic token estimation in Python/Node.js orchestrators is unnecessary and slow. The Anthropic API's `usage` block natively tracks input and output tokens exactly, enabling O(1) state management.
+**Action:** Use exact API token counts (`response.usage.input_tokens + response.usage.output_tokens`) rather than calculating string lengths on every message.
