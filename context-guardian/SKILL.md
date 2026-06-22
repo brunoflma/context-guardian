@@ -99,11 +99,11 @@ O card tem quatro zonas:
 - badge de perfil — neutro (Técnico / Estratégico / Criativo / Geral)
 
 **Zona 2 — Barra de checkpoint:** label "Checkpoint" + barra de progresso (height 6px,
-border-radius 3px, cor `#639922`) mostrando progresso do turno atual até o próximo checkpoint.
+border-radius 3px, cor `#639922`, role="progressbar", aria-valuenow="[turno atual]", aria-valuemin="0", aria-valuemax="[intervalo]") mostrando progresso do turno atual até o próximo checkpoint.
 Exemplo: turno 3, intervalo 10 → próximo em 13 → barra vazia no início, vai preenchendo
 conforme os turnos avançam. Exibir texto `Turno [atual] → [próximo]` à direita.
 
-**Zona 3 — Rows de dados** com ícone SVG (16×16, stroke-only) + rótulo (cor terciária,
+**Zona 3 — Rows de dados** com ícone SVG (16×16, stroke-only, `aria-hidden="true"`) + rótulo (cor terciária,
 min-width 72px) + valor (cor primária):
 
 | Ícone SVG | Rótulo | Conteúdo |
