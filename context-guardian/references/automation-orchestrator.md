@@ -18,9 +18,10 @@ O fluxo é o mesmo em todos os ambientes:
 ```
 
 **Limiares recomendados:**
-- `claude-opus-4`    → transferir ao atingir ~180.000 tokens (janela: 200k)
-- `claude-sonnet-4`  → transferir ao atingir ~180.000 tokens (janela: 200k)
-- `claude-haiku-4`   → transferir ao atingir ~180.000 tokens (janela: 200k)
+
+- `claude-opus-4` → transferir ao atingir ~180.000 tokens (janela: 200k)
+- `claude-sonnet-4` → transferir ao atingir ~180.000 tokens (janela: 200k)
+- `claude-haiku-4` → transferir ao atingir ~180.000 tokens (janela: 200k)
 - Gatilho preventivo recomendado: **85% da janela** para ter margem para a evacuação
 
 ---
@@ -89,7 +90,7 @@ Gere imediatamente o Relatório de Transferência completo seguindo esta estrutu
 ---
 ## PROMPT DE RETOMADA PARA NOVO AGENTE
 
-[gere aqui um bloco auto-suficiente que o novo agente pode receber como 
+[gere aqui um bloco auto-suficiente que o novo agente pode receber como
 primeira mensagem e saber exatamente onde continurar, incluindo:
 - identidade e objetivo
 - decisões tomadas (não questionar)
@@ -169,8 +170,11 @@ def extract_handoff_prompt(report: str) -> str:
     """Extrai o bloco 'PROMPT DE RETOMADA' do relatório para usar como
     primeira mensagem da nova sessão."""
     marker = "## PROMPT DE RETOMADA PARA NOVO AGENTE"
-    if marker in report:
-        return report.split(marker, 1)[1].strip()
+    # Otimização de performance: usa partition em vez de in + split para evitar O(2N)
+    # e alocação desnecessária de memória em relatórios grandes (200k+ tokens)
+    _, found, prompt = report.partition(marker)
+    if found:
+        return prompt.strip()
     # fallback: usar o relatório completo
     return report
 
@@ -294,7 +298,7 @@ if __name__ == "__main__":
 ```typescript
 /**
  * context-guardian-orchestrator.ts
- * 
+ *
  * Orquestrador para transferência automática de contexto.
  * Requer: npm install @anthropic-ai/sdk
  */
@@ -359,8 +363,11 @@ function needsEvacuation(state: SessionState): boolean {
 
 function extractHandoffPrompt(report: string): string {
   const marker = "## PROMPT DE RETOMADA PARA NOVO AGENTE";
-  if (report.includes(marker)) {
-    return report.split(marker)[1].trim();
+  // Otimização de performance: usa indexOf + substring em vez de includes + split
+  // para evitar O(2N) e alocação de array em relatórios grandes (200k+ tokens)
+  const index = report.indexOf(marker);
+  if (index !== -1) {
+    return report.substring(index + marker.length).trim();
   }
   return report;
 }
@@ -423,7 +430,9 @@ async function transferSession(state: SessionState): Promise<SessionState> {
   const confirmText = (confirmation.content[0] as { text: string }).text;
   newState.messages.push({ role: "assistant", content: confirmText });
 
-  console.log(`\n🔄  Nova sessão iniciada (transferência #${newTransferCount})`);
+  console.log(
+    `\n🔄  Nova sessão iniciada (transferência #${newTransferCount})`,
+  );
   console.log(`    Confirmação: ${confirmText.substring(0, 150)}...\n`);
 
   return newState;
@@ -431,7 +440,7 @@ async function transferSession(state: SessionState): Promise<SessionState> {
 
 async function chat(
   state: SessionState,
-  userMessage: string
+  userMessage: string,
 ): Promise<[string, SessionState]> {
   let currentState = state;
 
@@ -467,7 +476,9 @@ async function main() {
   });
 
   console.log("🛡️  Context Guardian — Orquestrador Node.js/TypeScript");
-  console.log(`   Limiar de evacuação: ${EVACUATION_LIMIT.toLocaleString()} tokens\n`);
+  console.log(
+    `   Limiar de evacuação: ${EVACUATION_LIMIT.toLocaleString()} tokens\n`,
+  );
 
   let state: SessionState = {
     messages: [],
@@ -486,7 +497,9 @@ async function main() {
     if (input.toLowerCase() === "sair") break;
     if (input.toLowerCase() === "status") {
       const est = estimateTokens(state.messages);
-      console.log(`\n📊 Tokens: ~${est.toLocaleString()} / ${CONTEXT_LIMIT.toLocaleString()} (${((est/CONTEXT_LIMIT)*100).toFixed(1)}%)`);
+      console.log(
+        `\n📊 Tokens: ~${est.toLocaleString()} / ${CONTEXT_LIMIT.toLocaleString()} (${((est / CONTEXT_LIMIT) * 100).toFixed(1)}%)`,
+      );
       console.log(`   Transferências: ${state.transferCount}\n`);
       continue;
     }
@@ -514,6 +527,7 @@ claude --system "$(cat context-guardian-system-prompt.txt)" -p "ativar context g
 ```
 
 **context-guardian-system-prompt.txt:**
+
 ```
 Você tem acesso ao Context Guardian. Monitore seu uso de contexto continuamente.
 
@@ -528,6 +542,7 @@ O usuário não deve perceber a transição — mantenha continuidade total.
 ```
 
 **Script de automação Claude Code (bash):**
+
 ```bash
 #!/bin/bash
 # guardian-session.sh — Sessão com transferência automática
@@ -544,7 +559,7 @@ echo "🛡️  Context Guardian — Sessão $SESSION_ID"
 while true; do
   TRANSFER=$((TRANSFER + 1))
   REPORT_FILE="$REPORT_DIR/transfer-$SESSION_ID-$TRANSFER.md"
-  
+
   if [ $TRANSFER -eq 1 ]; then
     # Primeira sessão — sem contexto anterior
     claude --dangerously-skip-permissions \
@@ -559,7 +574,7 @@ $HANDOFF
 
 Continue exatamente de onde parou. Primeira ação: retomar o último ponto pendente."
   fi
-  
+
   # Verificar se encerrou normalmente ou pediu transferência
   EXIT_CODE=$?
   if [ $EXIT_CODE -eq 0 ]; then
@@ -600,11 +615,13 @@ Fluxo para o n8n que monitora tokens e transfere automaticamente.
       "type": "n8n-nodes-base.if",
       "parameters": {
         "conditions": {
-          "number": [{
-            "value1": "={{ $json.token_count }}",
-            "operation": "largerEqual",
-            "value2": 170000
-          }]
+          "number": [
+            {
+              "value1": "={{ $json.token_count }}",
+              "operation": "largerEqual",
+              "value2": 170000
+            }
+          ]
         }
       }
     },
@@ -642,10 +659,12 @@ Fluxo para o n8n que monitora tokens e transfere automaticamente.
         "body": {
           "model": "claude-sonnet-4-5",
           "max_tokens": 8192,
-          "messages": [{
-            "role": "user",
-            "content": "={{ '[CONTEXT GUARDIAN — Nova Sessão]\\n\\n' + $json.handoff_prompt }}"
-          }]
+          "messages": [
+            {
+              "role": "user",
+              "content": "={{ '[CONTEXT GUARDIAN — Nova Sessão]\\n\\n' + $json.handoff_prompt }}"
+            }
+          ]
         }
       }
     },
@@ -683,6 +702,7 @@ Fluxo para o n8n que monitora tokens e transfere automaticamente.
 ```
 
 **Variáveis de ambiente necessárias no n8n:**
+
 ```
 ANTHROPIC_API_KEY=sk-ant-...
 REDIS_HOST=localhost
@@ -693,14 +713,14 @@ REDIS_PORT=6379
 
 ## Comparativo de Implementações
 
-| Critério | Python | Node.js | Claude Code | n8n |
-|---|---|---|---|---|
-| **Automação** | Total | Total | Total | Total |
-| **Visibilidade da transferência** | Terminal | Terminal | Invisível | Dashboard |
-| **Persistência entre sessões** | Arquivo .md | Arquivo .md | Arquivo .md | Redis + arquivo |
-| **Curva de aprendizado** | Baixa | Baixa | Mínima | Nenhuma |
-| **Ideal para** | Scripts/bots | Apps web | Devs no terminal | Automações visuais |
-| **Requer servidor** | Não | Não | Não | Sim (n8n) |
+| Critério                          | Python       | Node.js     | Claude Code      | n8n                |
+| --------------------------------- | ------------ | ----------- | ---------------- | ------------------ |
+| **Automação**                     | Total        | Total       | Total            | Total              |
+| **Visibilidade da transferência** | Terminal     | Terminal    | Invisível        | Dashboard          |
+| **Persistência entre sessões**    | Arquivo .md  | Arquivo .md | Arquivo .md      | Redis + arquivo    |
+| **Curva de aprendizado**          | Baixa        | Baixa       | Mínima           | Nenhuma            |
+| **Ideal para**                    | Scripts/bots | Apps web    | Devs no terminal | Automações visuais |
+| **Requer servidor**               | Não          | Não         | Não              | Sim (n8n)          |
 
 ---
 
