@@ -109,6 +109,7 @@ class ConversationState:
     messages: list = field(default_factory=list)
     total_input_tokens: int = 0
     total_output_tokens: int = 0
+    current_context_tokens: int = 0
     transfer_count: int = 0
     evacuation_report: Optional[str] = None
 
@@ -120,26 +121,17 @@ client = anthropic.Anthropic()  # usa ANTHROPIC_API_KEY do ambiente
 
 # ─── Funções principais ───────────────────────────────────────────────────────
 
-def estimate_tokens(messages: list) -> int:
-    """Estimativa rápida: ~4 chars por token."""
-    total_chars = sum(
-        len(m["content"]) if isinstance(m["content"], str)
-        else sum(len(b.get("text", "")) for b in m["content"])
-        for m in messages
-    )
-    return total_chars // 4
-
-
 def needs_evacuation(state: ConversationState) -> bool:
     """Verifica se é necessário evacuar com base nos tokens."""
-    estimated = estimate_tokens(state.messages)
-    return estimated >= EVACUATION_TOKEN_LIMIT
+    # Otimização de performance: usa a métrica exata de tokens da API (O(1))
+    # em vez de iterar sobre o histórico de mensagens (O(N)).
+    return state.current_context_tokens >= EVACUATION_TOKEN_LIMIT
 
 
 def generate_evacuation_report(state: ConversationState) -> str:
     """Chama Claude para gerar o relatório completo de transferência."""
     print("\n⚠️  CONTEXT GUARDIAN — Iniciando evacuação...")
-    print(f"   Tokens estimados: {estimate_tokens(state.messages):,}")
+    print(f"   Tokens em contexto: {state.current_context_tokens:,}")
     print(f"   Limite configurado: {EVACUATION_TOKEN_LIMIT:,}")
 
     evacuation_messages = state.messages + [
@@ -196,6 +188,7 @@ def transfer_session(state: ConversationState) -> ConversationState:
     new_state = ConversationState(
         transfer_count=state.transfer_count,
         evacuation_report=report,
+        current_context_tokens=0,
     )
 
     # Primeira mensagem da nova sessão = Prompt de Retomada
@@ -251,6 +244,8 @@ def chat(state: ConversationState, user_message: str) -> tuple[str, Conversation
     state.messages.append({"role": "assistant", "content": assistant_message})
     state.total_input_tokens += response.usage.input_tokens
     state.total_output_tokens += response.usage.output_tokens
+    # Atualiza o contexto atual baseado no report exato do uso do modelo
+    state.current_context_tokens = response.usage.input_tokens + response.usage.output_tokens
 
     return assistant_message, state
 
@@ -273,10 +268,10 @@ def main():
         if user_input.lower() == "sair":
             break
         if user_input.lower() == "status":
-            estimated = estimate_tokens(state.messages)
-            pct = (estimated / CONTEXT_LIMIT) * 100
+            current_tokens = state.current_context_tokens
+            pct = (current_tokens / CONTEXT_LIMIT) * 100
             print(f"\n📊 Status do contexto:")
-            print(f"   Tokens estimados: {estimated:,} / {CONTEXT_LIMIT:,} ({pct:.1f}%)")
+            print(f"   Tokens em contexto: {current_tokens:,} / {CONTEXT_LIMIT:,} ({pct:.1f}%)")
             print(f"   Transferências realizadas: {state.transfer_count}")
             print(f"   Limiar de evacuação: {EVACUATION_TOKEN_LIMIT:,} tokens\n")
             continue
@@ -344,6 +339,7 @@ interface SessionState {
   transferCount: number;
   totalInputTokens: number;
   totalOutputTokens: number;
+  currentContextTokens: number;
 }
 
 // ─── Cliente ──────────────────────────────────────────────────────────────
@@ -352,13 +348,10 @@ const client = new Anthropic(); // usa ANTHROPIC_API_KEY do ambiente
 
 // ─── Funções ──────────────────────────────────────────────────────────────
 
-function estimateTokens(messages: Message[]): number {
-  const totalChars = messages.reduce((sum, m) => sum + m.content.length, 0);
-  return Math.floor(totalChars / 4);
-}
-
 function needsEvacuation(state: SessionState): boolean {
-  return estimateTokens(state.messages) >= EVACUATION_LIMIT;
+  // Otimização de performance: usa a métrica exata de tokens da API (O(1))
+  // em vez de iterar sobre o histórico de mensagens (O(N)).
+  return state.currentContextTokens >= EVACUATION_LIMIT;
 }
 
 function extractHandoffPrompt(report: string): string {
@@ -411,6 +404,7 @@ async function transferSession(state: SessionState): Promise<SessionState> {
     transferCount: newTransferCount,
     totalInputTokens: 0,
     totalOutputTokens: 0,
+    currentContextTokens: 0,
   };
 
   const firstMessage: Message = {
@@ -462,6 +456,8 @@ async function chat(
   currentState.messages.push({ role: "assistant", content: assistantMessage });
   currentState.totalInputTokens += response.usage.input_tokens;
   currentState.totalOutputTokens += response.usage.output_tokens;
+  currentState.currentContextTokens =
+    response.usage.input_tokens + response.usage.output_tokens;
 
   return [assistantMessage, currentState];
 }
@@ -485,6 +481,7 @@ async function main() {
     transferCount: 0,
     totalInputTokens: 0,
     totalOutputTokens: 0,
+    currentContextTokens: 0,
   };
 
   const ask = (prompt: string): Promise<string> =>
@@ -496,9 +493,9 @@ async function main() {
     if (!input) continue;
     if (input.toLowerCase() === "sair") break;
     if (input.toLowerCase() === "status") {
-      const est = estimateTokens(state.messages);
+      const current = state.currentContextTokens;
       console.log(
-        `\n📊 Tokens: ~${est.toLocaleString()} / ${CONTEXT_LIMIT.toLocaleString()} (${((est / CONTEXT_LIMIT) * 100).toFixed(1)}%)`,
+        `\n📊 Tokens: ${current.toLocaleString()} / ${CONTEXT_LIMIT.toLocaleString()} (${((current / CONTEXT_LIMIT) * 100).toFixed(1)}%)`,
       );
       console.log(`   Transferências: ${state.transferCount}\n`);
       continue;
