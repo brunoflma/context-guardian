@@ -162,11 +162,11 @@ def extract_handoff_prompt(report: str) -> str:
     """Extrai o bloco 'PROMPT DE RETOMADA' do relatório para usar como
     primeira mensagem da nova sessão."""
     marker = "## PROMPT DE RETOMADA PARA NOVO AGENTE"
-    # Otimização de performance: usa partition em vez de in + split para evitar O(2N)
-    # e alocação desnecessária de memória em relatórios grandes (200k+ tokens)
-    _, found, prompt = report.partition(marker)
-    if found:
-        return prompt.strip()
+    # Otimização de performance: usa find + slice em vez de partition para
+    # evitar a alocação do prefixo (string maciça de 200k+ tokens).
+    index = report.find(marker)
+    if index != -1:
+        return report[index + len(marker):].strip()
     # fallback: usar o relatório completo
     return report
 
