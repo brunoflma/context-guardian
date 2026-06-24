@@ -110,23 +110,23 @@ Exemplo: turno 3, intervalo 10 → próximo em 13 → barra vazia no início, va
 conforme os turnos avançam. Exibir texto `Turno [atual] → [próximo]` à direita.
 
 **Zona 3 — Rows de dados** com ícone SVG (16×16, stroke-only, `aria-hidden="true"`) + rótulo (cor terciária,
-min-width 72px) + valor (cor primária):
+min-width 72px) + valor (cor primária). **Acessibilidade:** Utilize uma lista de descrição semântica `<dl>` como container dos dados, envolvendo cada item em `<dt>` (Rótulo + Ícone) e `<dd>` (Valor):
 
-| Ícone SVG                                 | Rótulo    | Conteúdo                                                                                                                        |
-| ----------------------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| relógio (`circle + polyline`)             | Intervalo | `a cada N turnos · próximo checkpoint: Turno X`                                                                                 |
-| usuário (`circle + path`)                 | Objetivo  | objetivo declarado na ativação                                                                                                  |
-| lista/clipboard (`rect + lines`)          | Decisões  | decisões registradas, ou `nenhuma ainda`                                                                                        |
-| escudo (`path`)                           | Protocolo | tags inline: `garantido` (verde) para checkpoint e evacuação por gatilho · `melhor esforço` (âmbar) para fase e pré-compactação |
-| triângulo alerta (`path + line + circle`) | Alertas   | degradação detectada, ou `—`                                                                                                    |
+| Ícone SVG                                 | Rótulo `<dt>` | Conteúdo `<dd>`                                                                                                                 |
+| ----------------------------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| relógio (`circle + polyline`)             | Intervalo     | `a cada N turnos · próximo checkpoint: Turno X`                                                                                 |
+| usuário (`circle + path`)                 | Objetivo      | objetivo declarado na ativação                                                                                                  |
+| lista/clipboard (`rect + lines`)          | Decisões      | decisões registradas, ou `nenhuma ainda`                                                                                        |
+| escudo (`path`)                           | Protocolo     | tags inline: `garantido` (verde) para checkpoint e evacuação por gatilho · `melhor esforço` (âmbar) para fase e pré-compactação |
+| triângulo alerta (`path + line + circle`) | Alertas       | degradação detectada, ou `—`                                                                                                    |
 
-**Zona 4 — Barra de recomendação** (cor semântica):
+**Zona 4 — Barra de recomendação** (cor semântica). **Acessibilidade:** O container desta barra deve obrigatoriamente usar `role="status"` para os estados Normal e Atenção, e `role="alert"` para o estado Crítico:
 
-| Estado  | Cor                                    | Label               | Hint                                           |
-| ------- | -------------------------------------- | ------------------- | ---------------------------------------------- |
-| Normal  | Verde (`--color-background-success`)   | Sentinela ativo     | `Digite "checkpoint agora" a qualquer momento` |
-| Atenção | Âmbar (`--color-background-warning`)   | Checkpoint pendente | `Digite "ok" para confirmar ou "evacuar"`      |
-| Crítico | Vermelho (`--color-background-danger`) | Evacuação imediata  | `Contexto comprometido`                        |
+| Estado  | Cor                                    | Label               | Hint                                           | Role ARIA       |
+| ------- | -------------------------------------- | ------------------- | ---------------------------------------------- | --------------- |
+| Normal  | Verde (`--color-background-success`)   | Sentinela ativo     | `Digite "checkpoint agora" a qualquer momento` | `role="status"` |
+| Atenção | Âmbar (`--color-background-warning`)   | Checkpoint pendente | `Digite "ok" para confirmar ou "evacuar"`      | `role="status"` |
+| Crítico | Vermelho (`--color-background-danger`) | Evacuação imediata  | `Contexto comprometido`                        | `role="alert"`  |
 
 ### Lembrete de Checkpoint (emitir a cada N turnos respondidos)
 
