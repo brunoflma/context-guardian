@@ -559,13 +559,11 @@ while true; do
 
   if [ $TRANSFER -eq 1 ]; then
     # Primeira sessão — sem contexto anterior
-    claude --dangerously-skip-permissions \
-           -p "ativar context guardian. sessão $SESSION_ID"
+    claude -p "ativar context guardian. sessão $SESSION_ID"
   else
     # Sessões subsequentes — injetar relatório anterior
     HANDOFF=$(cat "$REPORT_DIR/transfer-$SESSION_ID-$((TRANSFER-1)).md")
-    claude --dangerously-skip-permissions \
-           -p "[CONTEXT GUARDIAN — Transferência #$TRANSFER]
+    claude -p "[CONTEXT GUARDIAN — Transferência #$TRANSFER]
 
 $HANDOFF
 
