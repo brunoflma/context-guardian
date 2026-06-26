@@ -94,7 +94,7 @@ Emitir como **card HTML via ferramenta de visualização**, no mesmo estilo da s
 **Regras de Segurança e Acessibilidade:**
 
 - 🛡️ **Segurança (Prevenção de XSS):** Antes de renderizar qualquer texto do usuário no HTML (como o "Objetivo" ou "Decisões"), você deve **escapar caracteres HTML** (substituir `<`, `>`, `&`, `"`, `'` por suas respectivas entidades HTML).
-- ♿ **Acessibilidade:** Você deve incluir atributos ARIA (ex: `role="region"`, `aria-label="Context Guardian"`, `aria-hidden="true"` nos ícones SVG) em todos os componentes visuais.
+- ♿ **Acessibilidade:** Você deve incluir atributos ARIA (ex: `role="region"`, `aria-label="Context Guardian"`, `aria-hidden="true"` nos ícones SVG) em todos os componentes visuais, usar tags semânticas (como `<dl>`, `<dt>`, `<dd>` para dados), e usar ARIA roles dependentes do contexto (ex: `role="status"`, `role="alert"`).
 
 O card tem quatro zonas (lembre-se de aplicar as regras acima):
 
@@ -109,8 +109,7 @@ border-radius 3px, cor `#639922`, role="progressbar", aria-valuenow="[turno atua
 Exemplo: turno 3, intervalo 10 → próximo em 13 → barra vazia no início, vai preenchendo
 conforme os turnos avançam. Exibir texto `Turno [atual] → [próximo]` à direita.
 
-**Zona 3 — Rows de dados** com ícone SVG (16×16, stroke-only, `aria-hidden="true"`) + rótulo (cor terciária,
-min-width 72px) + valor (cor primária):
+**Zona 3 — Rows de dados** renderizados usando uma Definition List (`<dl>`), onde cada item contém um ícone SVG (16×16, stroke-only, `aria-hidden="true"`), um rótulo em `<dt>` (cor terciária, min-width 72px), e um valor em `<dd>` (cor primária):
 
 | Ícone SVG                                 | Rótulo    | Conteúdo                                                                                                                        |
 | ----------------------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------- |
@@ -120,7 +119,7 @@ min-width 72px) + valor (cor primária):
 | escudo (`path`)                           | Protocolo | tags inline: `garantido` (verde) para checkpoint e evacuação por gatilho · `melhor esforço` (âmbar) para fase e pré-compactação |
 | triângulo alerta (`path + line + circle`) | Alertas   | degradação detectada, ou `—`                                                                                                    |
 
-**Zona 4 — Barra de recomendação** (cor semântica):
+**Zona 4 — Barra de recomendação** (cor semântica, usando `role="status"` para estados normais/atenção e `role="alert"` para estado crítico):
 
 | Estado  | Cor                                    | Label               | Hint                                           |
 | ------- | -------------------------------------- | ------------------- | ---------------------------------------------- |
