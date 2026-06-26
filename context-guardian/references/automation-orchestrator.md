@@ -232,11 +232,17 @@ def chat(state: ConversationState, user_message: str) -> tuple[str, Conversation
     state.messages.append({"role": "user", "content": user_message})
 
     # Enviar para Claude
-    response = client.messages.create(
-        model=MODEL,
-        max_tokens=MAX_TOKENS_RESPONSE,
-        messages=state.messages,
-    )
+    try:
+        response = client.messages.create(
+            model=MODEL,
+            max_tokens=MAX_TOKENS_RESPONSE,
+            messages=state.messages,
+        )
+    except Exception as e:
+        print("\n❌ Erro na comunicação com a API. Tente novamente mais tarde.")
+        # Remove a última mensagem do usuário para não corromper o estado em caso de falha
+        state.messages.pop()
+        return "Desculpe, ocorreu um erro de comunicação.", state
 
     assistant_message = response.content[0].text
 
@@ -445,11 +451,20 @@ async function chat(
 
   currentState.messages.push({ role: "user", content: userMessage });
 
-  const response = await client.messages.create({
-    model: MODEL,
-    max_tokens: MAX_TOKENS_RESPONSE,
-    messages: currentState.messages,
-  });
+  let response;
+  try {
+    response = await client.messages.create({
+      model: MODEL,
+      max_tokens: MAX_TOKENS_RESPONSE,
+      messages: currentState.messages,
+    });
+  } catch (error) {
+    console.error(
+      "\n❌ Erro na comunicação com a API. Tente novamente mais tarde.",
+    );
+    currentState.messages.pop();
+    return ["Desculpe, ocorreu um erro de comunicação.", currentState];
+  }
 
   const assistantMessage = (response.content[0] as { text: string }).text;
 
