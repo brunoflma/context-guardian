@@ -138,15 +138,19 @@ def generate_evacuation_report(state: ConversationState) -> str:
         {"role": "user", "content": EVACUATION_INSTRUCTION}
     ]
 
-    response = client.messages.create(
-        model=MODEL,
-        max_tokens=MAX_TOKENS_RESPONSE,
-        messages=evacuation_messages,
-    )
+    try:
+        response = client.messages.create(
+            model=MODEL,
+            max_tokens=MAX_TOKENS_RESPONSE,
+            messages=evacuation_messages,
+        )
 
-    report = response.content[0].text
-    print("✅  Relatório de transferência gerado.")
-    return report
+        report = response.content[0].text
+        print("✅  Relatório de transferência gerado.")
+        return report
+    except Exception as e:
+        print("❌ Erro interno ao comunicar com a API. Abortando evacuação.")
+        return "ERRO_NA_EVACUACAO"
 
 
 def save_report(report: str, transfer_count: int) -> str:
@@ -203,20 +207,28 @@ def transfer_session(state: ConversationState) -> ConversationState:
     ]
 
     # Confirmar que o novo agente recebeu o contexto
-    confirmation = client.messages.create(
-        model=MODEL,
-        max_tokens=512,
-        messages=new_state.messages,
-    )
+    try:
+        confirmation = client.messages.create(
+            model=MODEL,
+            max_tokens=512,
+            messages=new_state.messages,
+        )
 
-    new_state.messages.append({
-        "role": "assistant",
-        "content": confirmation.content[0].text
-    })
+        new_state.messages.append({
+            "role": "assistant",
+            "content": confirmation.content[0].text
+        })
 
-    print(f"\n🔄  Nova sessão iniciada (transferência #{state.transfer_count})")
-    print(f"    Arquivo de referência: {filename}")
-    print(f"    Confirmação do novo agente:\n    {confirmation.content[0].text[:200]}...\n")
+        print(f"\n🔄  Nova sessão iniciada (transferência #{state.transfer_count})")
+        print(f"    Arquivo de referência: {filename}")
+        print(f"    Confirmação do novo agente:\n    {confirmation.content[0].text[:200]}...\n")
+    except Exception as e:
+        print("❌ Erro interno ao iniciar nova sessão de transferência. Continuando com estado atual sem confirmação.")
+        # Fallback graceful
+        new_state.messages.append({
+            "role": "assistant",
+            "content": "Sessão de transferência iniciada (aviso: falha na confirmação da API)."
+        })
 
     return new_state
 
@@ -232,22 +244,27 @@ def chat(state: ConversationState, user_message: str) -> tuple[str, Conversation
     state.messages.append({"role": "user", "content": user_message})
 
     # Enviar para Claude
-    response = client.messages.create(
-        model=MODEL,
-        max_tokens=MAX_TOKENS_RESPONSE,
-        messages=state.messages,
-    )
+    try:
+        response = client.messages.create(
+            model=MODEL,
+            max_tokens=MAX_TOKENS_RESPONSE,
+            messages=state.messages,
+        )
 
-    assistant_message = response.content[0].text
+        assistant_message = response.content[0].text
 
-    # Registrar resposta
-    state.messages.append({"role": "assistant", "content": assistant_message})
-    state.total_input_tokens += response.usage.input_tokens
-    state.total_output_tokens += response.usage.output_tokens
-    # Atualiza o contexto atual baseado no report exato do uso do modelo
-    state.current_context_tokens = response.usage.input_tokens + response.usage.output_tokens
+        # Registrar resposta
+        state.messages.append({"role": "assistant", "content": assistant_message})
+        state.total_input_tokens += response.usage.input_tokens
+        state.total_output_tokens += response.usage.output_tokens
+        # Atualiza o contexto atual baseado no report exato do uso do modelo
+        state.current_context_tokens = response.usage.input_tokens + response.usage.output_tokens
 
-    return assistant_message, state
+        return assistant_message, state
+    except Exception as e:
+        error_msg = "Ocorreu um erro interno ao se comunicar com a API. Por favor, tente novamente."
+        print(f"❌ Erro de API capturado (detalhes não expostos).")
+        return error_msg, state
 
 
 # ─── Loop principal ───────────────────────────────────────────────────────────
@@ -373,15 +390,20 @@ async function generateEvacuationReport(state: SessionState): Promise<string> {
     { role: "user" as const, content: EVACUATION_INSTRUCTION },
   ];
 
-  const response = await client.messages.create({
-    model: MODEL,
-    max_tokens: MAX_TOKENS_RESPONSE,
-    messages: evacuationMessages,
-  });
+  try {
+    const response = await client.messages.create({
+      model: MODEL,
+      max_tokens: MAX_TOKENS_RESPONSE,
+      messages: evacuationMessages,
+    });
 
-  const report = (response.content[0] as { text: string }).text;
-  console.log("✅  Relatório gerado.");
-  return report;
+    const report = (response.content[0] as { text: string }).text;
+    console.log("✅  Relatório gerado.");
+    return report;
+  } catch (error) {
+    console.log("❌ Erro interno ao comunicar com a API. Abortando evacuação.");
+    return "ERRO_NA_EVACUACAO";
+  }
 }
 
 async function transferSession(state: SessionState): Promise<SessionState> {
@@ -415,19 +437,24 @@ async function transferSession(state: SessionState): Promise<SessionState> {
   newState.messages.push(firstMessage);
 
   // Confirmação do novo agente
-  const confirmation = await client.messages.create({
-    model: MODEL,
-    max_tokens: 512,
-    messages: newState.messages,
-  });
+  try {
+    const confirmation = await client.messages.create({
+      model: MODEL,
+      max_tokens: 512,
+      messages: newState.messages,
+    });
 
-  const confirmText = (confirmation.content[0] as { text: string }).text;
-  newState.messages.push({ role: "assistant", content: confirmText });
+    const confirmText = (confirmation.content[0] as { text: string }).text;
+    newState.messages.push({ role: "assistant", content: confirmText });
 
-  console.log(
-    `\n🔄  Nova sessão iniciada (transferência #${newTransferCount})`,
-  );
-  console.log(`    Confirmação: ${confirmText.substring(0, 150)}...\n`);
+    console.log(
+      `\n🔄  Nova sessão iniciada (transferência #${newTransferCount})`,
+    );
+    console.log(`    Confirmação: ${confirmText.substring(0, 150)}...\n`);
+  } catch (error) {
+    console.log("❌ Erro interno ao iniciar nova sessão de transferência. Continuando com estado atual sem confirmação.");
+    newState.messages.push({ role: "assistant", content: "Sessão de transferência iniciada (aviso: falha na confirmação da API)." });
+  }
 
   return newState;
 }
@@ -445,21 +472,26 @@ async function chat(
 
   currentState.messages.push({ role: "user", content: userMessage });
 
-  const response = await client.messages.create({
-    model: MODEL,
-    max_tokens: MAX_TOKENS_RESPONSE,
-    messages: currentState.messages,
-  });
+  try {
+    const response = await client.messages.create({
+      model: MODEL,
+      max_tokens: MAX_TOKENS_RESPONSE,
+      messages: currentState.messages,
+    });
 
-  const assistantMessage = (response.content[0] as { text: string }).text;
+    const assistantMessage = (response.content[0] as { text: string }).text;
 
-  currentState.messages.push({ role: "assistant", content: assistantMessage });
-  currentState.totalInputTokens += response.usage.input_tokens;
-  currentState.totalOutputTokens += response.usage.output_tokens;
-  currentState.currentContextTokens =
-    response.usage.input_tokens + response.usage.output_tokens;
+    currentState.messages.push({ role: "assistant", content: assistantMessage });
+    currentState.totalInputTokens += response.usage.input_tokens;
+    currentState.totalOutputTokens += response.usage.output_tokens;
+    currentState.currentContextTokens =
+      response.usage.input_tokens + response.usage.output_tokens;
 
-  return [assistantMessage, currentState];
+    return [assistantMessage, currentState];
+  } catch (error) {
+    console.log("❌ Erro de API capturado (detalhes não expostos).");
+    return ["Ocorreu um erro interno ao se comunicar com a API. Por favor, tente novamente.", currentState];
+  }
 }
 
 // ─── Main ─────────────────────────────────────────────────────────────────
@@ -509,7 +541,9 @@ async function main() {
   rl.close();
 }
 
-main().catch(console.error);
+main().catch(() => {
+  console.log("❌ Erro interno crítico na execução do orquestrador (detalhes omitidos por segurança).");
+});
 ```
 
 ---
