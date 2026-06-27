@@ -110,7 +110,7 @@ Exemplo: turno 3, intervalo 10 → próximo em 13 → barra vazia no início, va
 conforme os turnos avançam. Exibir texto `Turno [atual] → [próximo]` à direita.
 
 **Zona 3 — Rows de dados** com ícone SVG (16×16, stroke-only, `aria-hidden="true"`) + rótulo (cor terciária,
-min-width 72px) + valor (cor primária):
+min-width 72px) + valor (cor primária). **Acessibilidade:** Estruture estes pares de dados usando HTML semântico com a tag `<dl>` em volta das linhas, `<dt>` para o rótulo e `<dd>` para o valor:
 
 | Ícone SVG                                 | Rótulo    | Conteúdo                                                                                                                        |
 | ----------------------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------- |
@@ -120,7 +120,7 @@ min-width 72px) + valor (cor primária):
 | escudo (`path`)                           | Protocolo | tags inline: `garantido` (verde) para checkpoint e evacuação por gatilho · `melhor esforço` (âmbar) para fase e pré-compactação |
 | triângulo alerta (`path + line + circle`) | Alertas   | degradação detectada, ou `—`                                                                                                    |
 
-**Zona 4 — Barra de recomendação** (cor semântica):
+**Zona 4 — Barra de recomendação** (cor semântica). **Acessibilidade:** Adicione `role="status"` para estados Normal e Atenção, e `role="alert"` para o estado Crítico:
 
 | Estado  | Cor                                    | Label               | Hint                                           |
 | ------- | -------------------------------------- | ------------------- | ---------------------------------------------- |
