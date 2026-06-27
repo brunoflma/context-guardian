@@ -11,3 +11,7 @@
 
 **Learning:** In LLM orchestrator scripts, heuristically estimating token counts by iterating through the entire message history string `O(N)` is an unnecessary performance bottleneck when the API already returns the exact token usage in `usage.input_tokens` and `usage.output_tokens`.
 **Action:** Track exact token usage directly in the state variables and update them immediately after each API call, enabling `O(1)` limit checks instead of recalculating the entire history length on every turn.
+
+## 2024-05-24 - Optimize massive string parsing in embedded orchestrator
+**Learning:** In Python, when extracting a suffix after a marker from a very large string (like a 200k+ token LLM response), `str.partition()` allocates memory for three strings: prefix, separator, and suffix. If the prefix is massive and unused, this causes significant unnecessary memory pressure.
+**Action:** Prefer using `str.find()` combined with string slicing (e.g., `text[idx + len(marker):]`) instead of `str.partition()` when only the suffix is needed from a large string.
