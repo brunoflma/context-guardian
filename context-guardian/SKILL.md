@@ -94,7 +94,7 @@ Emitir como **card HTML via ferramenta de visualização**, no mesmo estilo da s
 **Regras de Segurança e Acessibilidade:**
 
 - 🛡️ **Segurança (Prevenção de XSS):** Antes de renderizar qualquer texto do usuário no HTML (como o "Objetivo" ou "Decisões"), você deve **escapar caracteres HTML** (substituir `<`, `>`, `&`, `"`, `'` por suas respectivas entidades HTML).
-- ♿ **Acessibilidade:** Você deve incluir atributos ARIA (ex: `role="region"`, `aria-label="Context Guardian"`, `aria-hidden="true"` nos ícones SVG) em todos os componentes visuais.
+- ♿ **Acessibilidade:** Você deve incluir atributos ARIA (ex: `role="region"`, `aria-label="Context Guardian"`, `aria-hidden="true"` nos ícones SVG, e roles dinâmicas como `role="status"` ou `role="alert"` nas mensagens) em todos os componentes visuais, e usar marcação semântica apropriada (como `<dl>`, `<dt>`, `<dd>` para listas de dados).
 
 O card tem quatro zonas (lembre-se de aplicar as regras acima):
 
@@ -109,7 +109,7 @@ border-radius 3px, cor `#639922`, role="progressbar", aria-valuenow="[turno atua
 Exemplo: turno 3, intervalo 10 → próximo em 13 → barra vazia no início, vai preenchendo
 conforme os turnos avançam. Exibir texto `Turno [atual] → [próximo]` à direita.
 
-**Zona 3 — Rows de dados** com ícone SVG (16×16, stroke-only, `aria-hidden="true"`) + rótulo (cor terciária,
+**Zona 3 — Rows de dados** (usar lista de definição HTML: `<dl>` para o contêiner, `<dt>` para o rótulo, e `<dd>` para o valor) com ícone SVG (16×16, stroke-only, `aria-hidden="true"`) + rótulo (cor terciária,
 min-width 72px) + valor (cor primária):
 
 | Ícone SVG                                 | Rótulo    | Conteúdo                                                                                                                        |
@@ -120,7 +120,7 @@ min-width 72px) + valor (cor primária):
 | escudo (`path`)                           | Protocolo | tags inline: `garantido` (verde) para checkpoint e evacuação por gatilho · `melhor esforço` (âmbar) para fase e pré-compactação |
 | triângulo alerta (`path + line + circle`) | Alertas   | degradação detectada, ou `—`                                                                                                    |
 
-**Zona 4 — Barra de recomendação** (cor semântica):
+**Zona 4 — Barra de recomendação** (cor semântica) (usar `role="status"` para estados Normal/Atenção e `role="alert"` para estado Crítico):
 
 | Estado  | Cor                                    | Label               | Hint                                           |
 | ------- | -------------------------------------- | ------------------- | ---------------------------------------------- |
