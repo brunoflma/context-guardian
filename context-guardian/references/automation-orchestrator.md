@@ -138,13 +138,17 @@ def generate_evacuation_report(state: ConversationState) -> str:
         {"role": "user", "content": EVACUATION_INSTRUCTION}
     ]
 
-    response = client.messages.create(
-        model=MODEL,
-        max_tokens=MAX_TOKENS_RESPONSE,
-        messages=evacuation_messages,
-    )
-
-    report = response.content[0].text
+    try:
+        response = client.messages.create(
+            model=MODEL,
+            max_tokens=MAX_TOKENS_RESPONSE,
+            messages=evacuation_messages,
+        )
+        report = response.content[0].text
+    except Exception as e:
+        print("\n❌ CONTEXT GUARDIAN — Erro na API durante a evacuação.")
+        print("   Detalhes internos foram ocultados por segurança.")
+        return "ERRO_EVACUACAO_API"
     print("✅  Relatório de transferência gerado.")
     return report
 
@@ -203,16 +207,23 @@ def transfer_session(state: ConversationState) -> ConversationState:
     ]
 
     # Confirmar que o novo agente recebeu o contexto
-    confirmation = client.messages.create(
-        model=MODEL,
-        max_tokens=512,
-        messages=new_state.messages,
-    )
-
-    new_state.messages.append({
-        "role": "assistant",
-        "content": confirmation.content[0].text
-    })
+    try:
+        confirmation = client.messages.create(
+            model=MODEL,
+            max_tokens=512,
+            messages=new_state.messages,
+        )
+        new_state.messages.append({
+            "role": "assistant",
+            "content": confirmation.content[0].text
+        })
+    except Exception as e:
+        print("\n❌ CONTEXT GUARDIAN — Erro na API durante a confirmação.")
+        print("   Detalhes internos foram ocultados por segurança.")
+        new_state.messages.append({
+            "role": "assistant",
+            "content": "[ERRO_CONFIRMACAO_API]"
+        })
 
     print(f"\n🔄  Nova sessão iniciada (transferência #{state.transfer_count})")
     print(f"    Arquivo de referência: {filename}")
@@ -232,22 +243,26 @@ def chat(state: ConversationState, user_message: str) -> tuple[str, Conversation
     state.messages.append({"role": "user", "content": user_message})
 
     # Enviar para Claude
-    response = client.messages.create(
-        model=MODEL,
-        max_tokens=MAX_TOKENS_RESPONSE,
-        messages=state.messages,
-    )
+    try:
+        response = client.messages.create(
+            model=MODEL,
+            max_tokens=MAX_TOKENS_RESPONSE,
+            messages=state.messages,
+        )
+        assistant_message = response.content[0].text
 
-    assistant_message = response.content[0].text
+        # Registrar resposta
+        state.messages.append({"role": "assistant", "content": assistant_message})
+        state.total_input_tokens += response.usage.input_tokens
+        state.total_output_tokens += response.usage.output_tokens
+        # Atualiza o contexto atual baseado no report exato do uso do modelo
+        state.current_context_tokens = response.usage.input_tokens + response.usage.output_tokens
 
-    # Registrar resposta
-    state.messages.append({"role": "assistant", "content": assistant_message})
-    state.total_input_tokens += response.usage.input_tokens
-    state.total_output_tokens += response.usage.output_tokens
-    # Atualiza o contexto atual baseado no report exato do uso do modelo
-    state.current_context_tokens = response.usage.input_tokens + response.usage.output_tokens
-
-    return assistant_message, state
+        return assistant_message, state
+    except Exception as e:
+        print("\n❌ CONTEXT GUARDIAN — Erro na API durante a comunicação.")
+        print("   Detalhes internos foram ocultados por segurança.")
+        return "[ERRO_API]", state
 
 
 # ─── Loop principal ───────────────────────────────────────────────────────────
@@ -373,15 +388,20 @@ async function generateEvacuationReport(state: SessionState): Promise<string> {
     { role: "user" as const, content: EVACUATION_INSTRUCTION },
   ];
 
-  const response = await client.messages.create({
-    model: MODEL,
-    max_tokens: MAX_TOKENS_RESPONSE,
-    messages: evacuationMessages,
-  });
-
-  const report = (response.content[0] as { text: string }).text;
-  console.log("✅  Relatório gerado.");
-  return report;
+  try {
+    const response = await client.messages.create({
+      model: MODEL,
+      max_tokens: MAX_TOKENS_RESPONSE,
+      messages: evacuationMessages,
+    });
+    const report = (response.content[0] as { text: string }).text;
+    console.log("✅  Relatório gerado.");
+    return report;
+  } catch (error) {
+    console.error("\n❌ CONTEXT GUARDIAN — Erro na API durante a evacuação.");
+    console.error("   Detalhes internos foram ocultados por segurança.");
+    return "ERRO_EVACUACAO_API";
+  }
 }
 
 async function transferSession(state: SessionState): Promise<SessionState> {
@@ -415,19 +435,26 @@ async function transferSession(state: SessionState): Promise<SessionState> {
   newState.messages.push(firstMessage);
 
   // Confirmação do novo agente
-  const confirmation = await client.messages.create({
-    model: MODEL,
-    max_tokens: 512,
-    messages: newState.messages,
-  });
-
-  const confirmText = (confirmation.content[0] as { text: string }).text;
-  newState.messages.push({ role: "assistant", content: confirmText });
-
-  console.log(
-    `\n🔄  Nova sessão iniciada (transferência #${newTransferCount})`,
-  );
-  console.log(`    Confirmação: ${confirmText.substring(0, 150)}...\n`);
+  try {
+    const confirmation = await client.messages.create({
+      model: MODEL,
+      max_tokens: 512,
+      messages: newState.messages,
+    });
+    const confirmText = (confirmation.content[0] as { text: string }).text;
+    newState.messages.push({ role: "assistant", content: confirmText });
+    console.log(
+      `\n🔄  Nova sessão iniciada (transferência #${newTransferCount})`,
+    );
+    console.log(`    Confirmação: ${confirmText.substring(0, 150)}...\n`);
+  } catch (error) {
+    console.error("\n❌ CONTEXT GUARDIAN — Erro na API durante a confirmação.");
+    console.error("   Detalhes internos foram ocultados por segurança.");
+    newState.messages.push({
+      role: "assistant",
+      content: "[ERRO_CONFIRMACAO_API]",
+    });
+  }
 
   return newState;
 }
@@ -445,21 +472,29 @@ async function chat(
 
   currentState.messages.push({ role: "user", content: userMessage });
 
-  const response = await client.messages.create({
-    model: MODEL,
-    max_tokens: MAX_TOKENS_RESPONSE,
-    messages: currentState.messages,
-  });
+  try {
+    const response = await client.messages.create({
+      model: MODEL,
+      max_tokens: MAX_TOKENS_RESPONSE,
+      messages: currentState.messages,
+    });
+    const assistantMessage = (response.content[0] as { text: string }).text;
 
-  const assistantMessage = (response.content[0] as { text: string }).text;
+    currentState.messages.push({
+      role: "assistant",
+      content: assistantMessage,
+    });
+    currentState.totalInputTokens += response.usage.input_tokens;
+    currentState.totalOutputTokens += response.usage.output_tokens;
+    currentState.currentContextTokens =
+      response.usage.input_tokens + response.usage.output_tokens;
 
-  currentState.messages.push({ role: "assistant", content: assistantMessage });
-  currentState.totalInputTokens += response.usage.input_tokens;
-  currentState.totalOutputTokens += response.usage.output_tokens;
-  currentState.currentContextTokens =
-    response.usage.input_tokens + response.usage.output_tokens;
-
-  return [assistantMessage, currentState];
+    return [assistantMessage, currentState];
+  } catch (error) {
+    console.error("\n❌ CONTEXT GUARDIAN — Erro na API durante a comunicação.");
+    console.error("   Detalhes internos foram ocultados por segurança.");
+    return ["[ERRO_API]", currentState];
+  }
 }
 
 // ─── Main ─────────────────────────────────────────────────────────────────
