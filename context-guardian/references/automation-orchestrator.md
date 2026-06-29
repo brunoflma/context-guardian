@@ -38,6 +38,7 @@ Requer: pip install anthropic
 
 import anthropic
 import json
+import sys
 from dataclasses import dataclass, field
 from typing import Optional
 
@@ -138,11 +139,15 @@ def generate_evacuation_report(state: ConversationState) -> str:
         {"role": "user", "content": EVACUATION_INSTRUCTION}
     ]
 
-    response = client.messages.create(
-        model=MODEL,
-        max_tokens=MAX_TOKENS_RESPONSE,
-        messages=evacuation_messages,
-    )
+    try:
+        response = client.messages.create(
+            model=MODEL,
+            max_tokens=MAX_TOKENS_RESPONSE,
+            messages=evacuation_messages,
+        )
+    except Exception:
+        print("❌  Erro ao comunicar com a API. Abortando para evitar vazamento de estado.")
+        sys.exit(1)
 
     report = response.content[0].text
     print("✅  Relatório de transferência gerado.")
@@ -203,11 +208,15 @@ def transfer_session(state: ConversationState) -> ConversationState:
     ]
 
     # Confirmar que o novo agente recebeu o contexto
-    confirmation = client.messages.create(
-        model=MODEL,
-        max_tokens=512,
-        messages=new_state.messages,
-    )
+    try:
+        confirmation = client.messages.create(
+            model=MODEL,
+            max_tokens=512,
+            messages=new_state.messages,
+        )
+    except Exception:
+        print("❌  Erro ao confirmar transferência. Abortando para evitar perda de contexto.")
+        sys.exit(1)
 
     new_state.messages.append({
         "role": "assistant",
@@ -232,11 +241,15 @@ def chat(state: ConversationState, user_message: str) -> tuple[str, Conversation
     state.messages.append({"role": "user", "content": user_message})
 
     # Enviar para Claude
-    response = client.messages.create(
-        model=MODEL,
-        max_tokens=MAX_TOKENS_RESPONSE,
-        messages=state.messages,
-    )
+    try:
+        response = client.messages.create(
+            model=MODEL,
+            max_tokens=MAX_TOKENS_RESPONSE,
+            messages=state.messages,
+        )
+    except Exception:
+        print("❌  Ocorreu um erro interno de comunicação.")
+        return "Desculpe, ocorreu um erro temporário.", state
 
     assistant_message = response.content[0].text
 
@@ -373,11 +386,17 @@ async function generateEvacuationReport(state: SessionState): Promise<string> {
     { role: "user" as const, content: EVACUATION_INSTRUCTION },
   ];
 
-  const response = await client.messages.create({
-    model: MODEL,
-    max_tokens: MAX_TOKENS_RESPONSE,
-    messages: evacuationMessages,
-  });
+  let response;
+  try {
+    response = await client.messages.create({
+      model: MODEL,
+      max_tokens: MAX_TOKENS_RESPONSE,
+      messages: evacuationMessages,
+    });
+  } catch (error) {
+    console.error("❌ Erro ao comunicar com a API. Abortando para evitar vazamento de estado.");
+    process.exit(1);
+  }
 
   const report = (response.content[0] as { text: string }).text;
   console.log("✅  Relatório gerado.");
@@ -415,11 +434,17 @@ async function transferSession(state: SessionState): Promise<SessionState> {
   newState.messages.push(firstMessage);
 
   // Confirmação do novo agente
-  const confirmation = await client.messages.create({
-    model: MODEL,
-    max_tokens: 512,
-    messages: newState.messages,
-  });
+  let confirmation;
+  try {
+    confirmation = await client.messages.create({
+      model: MODEL,
+      max_tokens: 512,
+      messages: newState.messages,
+    });
+  } catch (error) {
+    console.error("❌ Erro ao confirmar transferência. Abortando para evitar perda de contexto.");
+    process.exit(1);
+  }
 
   const confirmText = (confirmation.content[0] as { text: string }).text;
   newState.messages.push({ role: "assistant", content: confirmText });
@@ -445,11 +470,17 @@ async function chat(
 
   currentState.messages.push({ role: "user", content: userMessage });
 
-  const response = await client.messages.create({
-    model: MODEL,
-    max_tokens: MAX_TOKENS_RESPONSE,
-    messages: currentState.messages,
-  });
+  let response;
+  try {
+    response = await client.messages.create({
+      model: MODEL,
+      max_tokens: MAX_TOKENS_RESPONSE,
+      messages: currentState.messages,
+    });
+  } catch (error) {
+    console.error("❌ Ocorreu um erro interno de comunicação.");
+    return ["Desculpe, ocorreu um erro temporário.", currentState];
+  }
 
   const assistantMessage = (response.content[0] as { text: string }).text;
 
