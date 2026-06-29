@@ -94,7 +94,7 @@ Emitir como **card HTML via ferramenta de visualização**, no mesmo estilo da s
 **Regras de Segurança e Acessibilidade:**
 
 - 🛡️ **Segurança (Prevenção de XSS):** Antes de renderizar qualquer texto do usuário no HTML (como o "Objetivo" ou "Decisões"), você deve **escapar caracteres HTML** (substituir `<`, `>`, `&`, `"`, `'` por suas respectivas entidades HTML).
-- ♿ **Acessibilidade:** Você deve incluir atributos ARIA (ex: `role="region"`, `aria-label="Context Guardian"`, `aria-hidden="true"` nos ícones SVG) em todos os componentes visuais.
+- ♿ **Acessibilidade:** Você deve incluir atributos ARIA (ex: `role="region"`, `aria-label="Context Guardian"`, `aria-hidden="true"` nos ícones SVG) em todos os componentes visuais. Utilize tags semânticas (ex: `<dl>`, `<dt>`, `<dd>`) e papéis de região ao vivo (ex: `role="status"`, `role="alert"`) quando aplicável.
 
 O card tem quatro zonas (lembre-se de aplicar as regras acima):
 
@@ -110,17 +110,17 @@ Exemplo: turno 3, intervalo 10 → próximo em 13 → barra vazia no início, va
 conforme os turnos avançam. Exibir texto `Turno [atual] → [próximo]` à direita.
 
 **Zona 3 — Rows de dados** com ícone SVG (16×16, stroke-only, `aria-hidden="true"`) + rótulo (cor terciária,
-min-width 72px) + valor (cor primária):
+min-width 72px) + valor (cor primária). **Deve ser renderizado como uma lista de descrições (`<dl>`)**, onde o rótulo é o termo (`<dt>`) e o conteúdo é a descrição (`<dd>`):
 
-| Ícone SVG                                 | Rótulo    | Conteúdo                                                                                                                        |
-| ----------------------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| relógio (`circle + polyline`)             | Intervalo | `a cada N turnos · próximo checkpoint: Turno X`                                                                                 |
-| usuário (`circle + path`)                 | Objetivo  | objetivo declarado na ativação                                                                                                  |
-| lista/clipboard (`rect + lines`)          | Decisões  | decisões registradas, ou `nenhuma ainda`                                                                                        |
-| escudo (`path`)                           | Protocolo | tags inline: `garantido` (verde) para checkpoint e evacuação por gatilho · `melhor esforço` (âmbar) para fase e pré-compactação |
-| triângulo alerta (`path + line + circle`) | Alertas   | degradação detectada, ou `—`                                                                                                    |
+| Ícone SVG                                 | Rótulo (`<dt>`) | Conteúdo (`<dd>`)                                                                                                               |
+| ----------------------------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| relógio (`circle + polyline`)             | Intervalo       | `a cada N turnos · próximo checkpoint: Turno X`                                                                                 |
+| usuário (`circle + path`)                 | Objetivo        | objetivo declarado na ativação                                                                                                  |
+| lista/clipboard (`rect + lines`)          | Decisões        | decisões registradas, ou `nenhuma ainda`                                                                                        |
+| escudo (`path`)                           | Protocolo       | tags inline: `garantido` (verde) para checkpoint e evacuação por gatilho · `melhor esforço` (âmbar) para fase e pré-compactação |
+| triângulo alerta (`path + line + circle`) | Alertas         | degradação detectada, ou `—`                                                                                                    |
 
-**Zona 4 — Barra de recomendação** (cor semântica):
+**Zona 4 — Barra de recomendação** (cor semântica): **Deve usar `role="status"` para os estados Normal e Atenção, e `role="alert"` para o estado Crítico.**
 
 | Estado  | Cor                                    | Label               | Hint                                           |
 | ------- | -------------------------------------- | ------------------- | ---------------------------------------------- |
