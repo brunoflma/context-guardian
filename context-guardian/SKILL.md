@@ -110,7 +110,7 @@ Exemplo: turno 3, intervalo 10 → próximo em 13 → barra vazia no início, va
 conforme os turnos avançam. Exibir texto `Turno [atual] → [próximo]` à direita.
 
 **Zona 3 — Rows de dados** com ícone SVG (16×16, stroke-only, `aria-hidden="true"`) + rótulo (cor terciária,
-min-width 72px) + valor (cor primária):
+min-width 72px) + valor (cor primária). **Obrigatório o uso de definition list (`<dl>`), onde o rótulo é `<dt>` e o valor é `<dd>`:**
 
 | Ícone SVG                                 | Rótulo    | Conteúdo                                                                                                                        |
 | ----------------------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------- |
@@ -122,11 +122,11 @@ min-width 72px) + valor (cor primária):
 
 **Zona 4 — Barra de recomendação** (cor semântica):
 
-| Estado  | Cor                                    | Label               | Hint                                           |
-| ------- | -------------------------------------- | ------------------- | ---------------------------------------------- |
-| Normal  | Verde (`--color-background-success`)   | Sentinela ativo     | `Digite "checkpoint agora" a qualquer momento` |
-| Atenção | Âmbar (`--color-background-warning`)   | Checkpoint pendente | `Digite "ok" para confirmar ou "evacuar"`      |
-| Crítico | Vermelho (`--color-background-danger`) | Evacuação imediata  | `Contexto comprometido`                        |
+| Estado  | Cor                                    | Label               | Hint                                           | Acessibilidade  |
+| ------- | -------------------------------------- | ------------------- | ---------------------------------------------- | --------------- |
+| Normal  | Verde (`--color-background-success`)   | Sentinela ativo     | `Digite "checkpoint agora" a qualquer momento` | `role="status"` |
+| Atenção | Âmbar (`--color-background-warning`)   | Checkpoint pendente | `Digite "ok" para confirmar ou "evacuar"`      | `role="status"` |
+| Crítico | Vermelho (`--color-background-danger`) | Evacuação imediata  | `Contexto comprometido`                        | `role="alert"`  |
 
 ### Lembrete de Checkpoint (emitir a cada N turnos respondidos)
 
