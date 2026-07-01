@@ -138,11 +138,15 @@ def generate_evacuation_report(state: ConversationState) -> str:
         {"role": "user", "content": EVACUATION_INSTRUCTION}
     ]
 
-    response = client.messages.create(
-        model=MODEL,
-        max_tokens=MAX_TOKENS_RESPONSE,
-        messages=evacuation_messages,
-    )
+    try:
+        response = client.messages.create(
+            model=MODEL,
+            max_tokens=MAX_TOKENS_RESPONSE,
+            messages=evacuation_messages,
+        )
+    except Exception:
+        print("Erro de API durante evacuação.")
+        return "Erro na geração do relatório."
 
     report = response.content[0].text
     print("✅  Relatório de transferência gerado.")
@@ -203,15 +207,20 @@ def transfer_session(state: ConversationState) -> ConversationState:
     ]
 
     # Confirmar que o novo agente recebeu o contexto
-    confirmation = client.messages.create(
-        model=MODEL,
-        max_tokens=512,
-        messages=new_state.messages,
-    )
+    try:
+        confirmation = client.messages.create(
+            model=MODEL,
+            max_tokens=512,
+            messages=new_state.messages,
+        )
+        confirm_text = confirmation.content[0].text
+    except Exception:
+        print("Erro de API ao confirmar nova sessão.")
+        confirm_text = "Transferência iniciada (confirmação indisponível)."
 
     new_state.messages.append({
         "role": "assistant",
-        "content": confirmation.content[0].text
+        "content": confirm_text
     })
 
     print(f"\n🔄  Nova sessão iniciada (transferência #{state.transfer_count})")
@@ -232,11 +241,16 @@ def chat(state: ConversationState, user_message: str) -> tuple[str, Conversation
     state.messages.append({"role": "user", "content": user_message})
 
     # Enviar para Claude
-    response = client.messages.create(
-        model=MODEL,
-        max_tokens=MAX_TOKENS_RESPONSE,
-        messages=state.messages,
-    )
+    try:
+        response = client.messages.create(
+            model=MODEL,
+            max_tokens=MAX_TOKENS_RESPONSE,
+            messages=state.messages,
+        )
+    except Exception:
+        print("Erro de API ao comunicar com Claude.")
+        state.messages.pop() # Remove user message to allow retry
+        return "Erro temporário de API.", state
 
     assistant_message = response.content[0].text
 
@@ -373,14 +387,18 @@ async function generateEvacuationReport(state: SessionState): Promise<string> {
     { role: "user" as const, content: EVACUATION_INSTRUCTION },
   ];
 
-  const response = await client.messages.create({
-    model: MODEL,
-    max_tokens: MAX_TOKENS_RESPONSE,
-    messages: evacuationMessages,
-  });
-
-  const report = (response.content[0] as { text: string }).text;
-  console.log("✅  Relatório gerado.");
+  let report = "Erro na geração do relatório.";
+  try {
+    const response = await client.messages.create({
+      model: MODEL,
+      max_tokens: MAX_TOKENS_RESPONSE,
+      messages: evacuationMessages,
+    });
+    report = (response.content[0] as { text: string }).text;
+    console.log("✅  Relatório gerado.");
+  } catch (error) {
+    console.error("Erro de API durante evacuação.");
+  }
   return report;
 }
 
@@ -415,13 +433,18 @@ async function transferSession(state: SessionState): Promise<SessionState> {
   newState.messages.push(firstMessage);
 
   // Confirmação do novo agente
-  const confirmation = await client.messages.create({
-    model: MODEL,
-    max_tokens: 512,
-    messages: newState.messages,
-  });
+  let confirmText = "Transferência iniciada (confirmação indisponível).";
+  try {
+    const confirmation = await client.messages.create({
+      model: MODEL,
+      max_tokens: 512,
+      messages: newState.messages,
+    });
+    confirmText = (confirmation.content[0] as { text: string }).text;
+  } catch (error) {
+    console.error("Erro de API ao confirmar nova sessão.");
+  }
 
-  const confirmText = (confirmation.content[0] as { text: string }).text;
   newState.messages.push({ role: "assistant", content: confirmText });
 
   console.log(
@@ -445,19 +468,25 @@ async function chat(
 
   currentState.messages.push({ role: "user", content: userMessage });
 
-  const response = await client.messages.create({
-    model: MODEL,
-    max_tokens: MAX_TOKENS_RESPONSE,
-    messages: currentState.messages,
-  });
+  let assistantMessage = "Erro temporário de API.";
+  try {
+    const response = await client.messages.create({
+      model: MODEL,
+      max_tokens: MAX_TOKENS_RESPONSE,
+      messages: currentState.messages,
+    });
 
-  const assistantMessage = (response.content[0] as { text: string }).text;
+    assistantMessage = (response.content[0] as { text: string }).text;
 
-  currentState.messages.push({ role: "assistant", content: assistantMessage });
-  currentState.totalInputTokens += response.usage.input_tokens;
-  currentState.totalOutputTokens += response.usage.output_tokens;
-  currentState.currentContextTokens =
-    response.usage.input_tokens + response.usage.output_tokens;
+    currentState.messages.push({ role: "assistant", content: assistantMessage });
+    currentState.totalInputTokens += response.usage.input_tokens;
+    currentState.totalOutputTokens += response.usage.output_tokens;
+    currentState.currentContextTokens =
+      response.usage.input_tokens + response.usage.output_tokens;
+  } catch (error) {
+    console.error("Erro de API ao comunicar com Claude.");
+    currentState.messages.pop(); // Remove user message to allow retry
+  }
 
   return [assistantMessage, currentState];
 }
