@@ -94,7 +94,7 @@ Emitir como **card HTML via ferramenta de visualização**, no mesmo estilo da s
 **Regras de Segurança e Acessibilidade:**
 
 - 🛡️ **Segurança (Prevenção de XSS):** Antes de renderizar qualquer texto do usuário no HTML (como o "Objetivo" ou "Decisões"), você deve **escapar caracteres HTML** (substituir `<`, `>`, `&`, `"`, `'` por suas respectivas entidades HTML).
-- ♿ **Acessibilidade:** Você deve incluir atributos ARIA (ex: `role="region"`, `aria-label="Context Guardian"`, `aria-hidden="true"` nos ícones SVG) em todos os componentes visuais.
+- ♿ **Acessibilidade:** Você deve incluir atributos ARIA genéricos (ex: `role="region"`, `aria-label="Context Guardian"`, `aria-hidden="true"` nos ícones SVG) em todos os componentes visuais, além de usar tags semânticas estruturais como `<dl>`, `<dt>` e `<dd>` para os dados da Zona 3, e roles dependentes de contexto como `role="status"` ou `role="alert"` na Zona 4.
 
 O card tem quatro zonas (lembre-se de aplicar as regras acima):
 
