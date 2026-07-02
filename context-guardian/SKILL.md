@@ -105,22 +105,22 @@ O card tem quatro zonas (lembre-se de aplicar as regras acima):
 - badge de perfil — neutro (Técnico / Estratégico / Criativo / Geral)
 
 **Zona 2 — Barra de checkpoint:** label "Checkpoint" + barra de progresso (height 6px,
-border-radius 3px, cor `#639922`, role="progressbar", aria-valuenow="[turno atual]", aria-valuemin="0", aria-valuemax="[intervalo]", aria-label="Progresso para o próximo checkpoint") mostrando progresso do turno atual até o próximo checkpoint.
+border-radius 3px, cor `#639922`, role="progressbar", aria-valuenow="[turno atual]", aria-valuemin="0", aria-valuemax="[intervalo]", aria-valuetext="[texto do progresso]", aria-label="Progresso para o próximo checkpoint") mostrando progresso do turno atual até o próximo checkpoint.
 Exemplo: turno 3, intervalo 10 → próximo em 13 → barra vazia no início, vai preenchendo
 conforme os turnos avançam. Exibir texto `Turno [atual] → [próximo]` à direita.
 
-**Zona 3 — Rows de dados** com ícone SVG (16×16, stroke-only, `aria-hidden="true"`) + rótulo (cor terciária,
-min-width 72px) + valor (cor primária):
+**Zona 3 — Rows de dados** formatadas OBRIGATORIAMENTE como uma Definition List HTML (`<dl>`, `<dt>` para rótulo, `<dd>` para valor) para garantir acessibilidade semântica.
+Incluir ícone SVG (16×16, stroke-only, `aria-hidden="true"`) + rótulo (cor terciária, min-width 72px) + valor (cor primária):
 
-| Ícone SVG                                 | Rótulo    | Conteúdo                                                                                                                        |
-| ----------------------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| relógio (`circle + polyline`)             | Intervalo | `a cada N turnos · próximo checkpoint: Turno X`                                                                                 |
-| usuário (`circle + path`)                 | Objetivo  | objetivo declarado na ativação                                                                                                  |
-| lista/clipboard (`rect + lines`)          | Decisões  | decisões registradas, ou `nenhuma ainda`                                                                                        |
-| escudo (`path`)                           | Protocolo | tags inline: `garantido` (verde) para checkpoint e evacuação por gatilho · `melhor esforço` (âmbar) para fase e pré-compactação |
-| triângulo alerta (`path + line + circle`) | Alertas   | degradação detectada, ou `—`                                                                                                    |
+| Ícone SVG                                 | Rótulo (`<dt>`) | Conteúdo (`<dd>`)                                                                                                               |
+| ----------------------------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| relógio (`circle + polyline`)             | Intervalo       | `a cada N turnos · próximo checkpoint: Turno X`                                                                                 |
+| usuário (`circle + path`)                 | Objetivo        | objetivo declarado na ativação                                                                                                  |
+| lista/clipboard (`rect + lines`)          | Decisões        | decisões registradas, ou `nenhuma ainda`                                                                                        |
+| escudo (`path`)                           | Protocolo       | tags inline: `garantido` (verde) para checkpoint e evacuação por gatilho · `melhor esforço` (âmbar) para fase e pré-compactação |
+| triângulo alerta (`path + line + circle`) | Alertas         | degradação detectada, ou `—`                                                                                                    |
 
-**Zona 4 — Barra de recomendação** (cor semântica):
+**Zona 4 — Barra de recomendação** (cor semântica, deve incluir `role="status" aria-live="polite"` para os estados Normal e Atenção, e `role="alert" aria-live="assertive"` para Crítico):
 
 | Estado  | Cor                                    | Label               | Hint                                           |
 | ------- | -------------------------------------- | ------------------- | ---------------------------------------------- |

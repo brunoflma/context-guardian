@@ -146,7 +146,10 @@ def generate_evacuation_report(state: ConversationState) -> str:
         )
     except Exception:
         print("Erro de API durante evacuação.")
-        return "Erro na geração do relatório."
+        raise RuntimeError(
+            "Não foi possível gerar o relatório de transferência. "
+            "A transferência foi abortada para preservar o contexto atual."
+        )
 
     report = response.content[0].text
     print("✅  Relatório de transferência gerado.")
@@ -166,10 +169,11 @@ def extract_handoff_prompt(report: str) -> str:
     """Extrai o bloco 'PROMPT DE RETOMADA' do relatório para usar como
     primeira mensagem da nova sessão."""
     marker = "## PROMPT DE RETOMADA PARA NOVO AGENTE"
-    # Otimização de performance: usa partition em vez de in + split para evitar O(2N)
-    # e alocação desnecessária de memória em relatórios grandes (200k+ tokens)
-    _, found, prompt = report.partition(marker)
-    if found:
+    # Otimização de performance: usa find + slicing em vez de partition para evitar
+    # alocação desnecessária de memória para o prefixo não utilizado em relatórios grandes
+    idx = report.find(marker)
+    if idx != -1:
+        prompt = report[idx + len(marker):]
         return prompt.strip()
     # fallback: usar o relatório completo
     return report
@@ -387,19 +391,22 @@ async function generateEvacuationReport(state: SessionState): Promise<string> {
     { role: "user" as const, content: EVACUATION_INSTRUCTION },
   ];
 
-  let report = "Erro na geração do relatório.";
   try {
     const response = await client.messages.create({
       model: MODEL,
       max_tokens: MAX_TOKENS_RESPONSE,
       messages: evacuationMessages,
     });
-    report = (response.content[0] as { text: string }).text;
+    const report = (response.content[0] as { text: string }).text;
     console.log("✅  Relatório gerado.");
+    return report;
   } catch (error) {
     console.error("Erro de API durante evacuação.");
+    throw new Error(
+      "Nao foi possivel gerar o relatorio de transferencia. " +
+        "A transferencia foi abortada para preservar o contexto atual.",
+    );
   }
-  return report;
 }
 
 async function transferSession(state: SessionState): Promise<SessionState> {
@@ -588,13 +595,11 @@ while true; do
 
   if [ $TRANSFER -eq 1 ]; then
     # Primeira sessão — sem contexto anterior
-    claude --dangerously-skip-permissions \
-           -p "ativar context guardian. sessão $SESSION_ID"
+    claude -p "ativar context guardian. sessão $SESSION_ID"
   else
     # Sessões subsequentes — injetar relatório anterior
     HANDOFF=$(cat "$REPORT_DIR/transfer-$SESSION_ID-$((TRANSFER-1)).md")
-    claude --dangerously-skip-permissions \
-           -p "[CONTEXT GUARDIAN — Transferência #$TRANSFER]
+    claude -p "[CONTEXT GUARDIAN — Transferência #$TRANSFER]
 
 $HANDOFF
 
